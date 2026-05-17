@@ -1,440 +1,515 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Colorado Wildfire Intelligence Atlas</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0a0f0a; }
-.wrap { background: #0d1a0d; color: #e8f5e8; font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; border-radius: 12px; }
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #1e3a1e; }
-.logo-area { display: flex; align-items: center; gap: 14px; }
-.logo { width: 52px; height: 52px; background: #1a2e1a; border: 2px solid #2d5a2d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-.title-area h1 { font-size: 22px; font-weight: 700; color: #7ec850; letter-spacing: 1px; }
-.title-area p { font-size: 11px; color: #6a8a6a; margin-top: 2px; }
-.status-badge { display: flex; align-items: center; gap: 6px; background: #0d2a0d; border: 1px solid #2d5a2d; border-radius: 20px; padding: 6px 14px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; }
-.status-text { font-size: 11px; color: #7ec850; font-weight: 600; }
-.timestamp { font-size: 10px; color: #4a6a4a; margin-top: 2px; text-align: right; }
-.metrics-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
-.metric { background: #111f11; border: 1px solid #1e3a1e; border-radius: 8px; padding: 12px; text-align: center; }
-.metric-icon { font-size: 20px; margin-bottom: 4px; }
-.metric-label { font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.metric-value { font-size: 26px; font-weight: 700; line-height: 1; }
-.metric-sub { font-size: 10px; margin-top: 4px; }
-.val-red { color: #ff5252; }
-.val-orange { color: #ff9800; }
-.val-blue { color: #40c4ff; }
-.val-green { color: #69f0ae; }
-.val-yellow { color: #ffd740; }
-.sub-red { color: #ff7070; }
-.sub-green { color: #69f0ae; }
-.sub-gray { color: #5a7a5a; }
-.middle-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.card { background: #111f11; border: 1px solid #1e3a1e; border-radius: 8px; padding: 14px; }
-.card-title { font-size: 11px; font-weight: 700; color: #5a8a5a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
-.gauge-wrap { display: flex; align-items: center; gap: 16px; }
-.gauge-svg { flex-shrink: 0; }
-.gauge-info { flex: 1; }
-.gauge-level { font-size: 22px; font-weight: 700; color: #ff9800; }
-.gauge-label { font-size: 11px; color: #5a7a5a; }
-.trend-dots { display: flex; align-items: flex-end; gap: 4px; height: 40px; margin-top: 8px; }
-.trend-dot { width: 8px; border-radius: 2px; background: #ff9800; }
-.fire-status { display: flex; align-items: center; gap: 14px; }
-.fire-count { font-size: 40px; font-weight: 700; color: #ff5252; text-align: center; width: 70px; }
-.fire-legend { flex: 1; }
-.fire-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
-.fire-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.fire-num { font-weight: 700; min-width: 20px; }
-.alerts-list { }
-.alert-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid #1a2e1a; }
-.alert-item:last-child { border-bottom: none; }
-.alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.alert-body { flex: 1; }
-.alert-title { font-size: 12px; font-weight: 600; color: #e8f5e8; }
-.alert-loc { font-size: 10px; color: #5a7a5a; }
-.alert-time { font-size: 10px; color: #4a6a4a; flex-shrink: 0; }
-.bottom-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; }
-.weather-now { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.w-item { display: flex; flex-direction: column; align-items: center; }
-.w-icon { font-size: 16px; margin-bottom: 2px; }
-.w-val { font-size: 14px; font-weight: 700; color: #e8f5e8; }
-.w-lab { font-size: 9px; color: #5a7a5a; text-transform: uppercase; }
-.forecast-row { display: flex; gap: 8px; justify-content: space-around; }
-.fc-day { text-align: center; flex: 1; }
-.fc-label { font-size: 10px; color: #5a7a5a; font-weight: 600; margin-bottom: 4px; }
-.fc-icon { font-size: 16px; margin-bottom: 3px; }
-.fc-temp { font-size: 13px; font-weight: 700; color: #e8f5e8; }
-.fc-rain { font-size: 10px; color: #40c4ff; }
-.sources { }
-.src-title { font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700; }
-.src-list { display: flex; flex-wrap: wrap; gap: 4px; }
-.src-tag { font-size: 10px; background: #0d2a0d; border: 1px solid #2d4a2d; border-radius: 4px; padding: 3px 8px; color: #5a9a5a; }
-.footer { text-align: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid #1e3a1e; font-size: 10px; color: #3a5a3a; letter-spacing: 2px; text-transform: uppercase; }
-.loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #0d1a0d; display: flex; align-items: center; justify-content: center; border-radius: 12px; z-index: 10; }
-.loading-text { color: #5a9a5a; font-size: 13px; }
-.data-live { font-size: 9px; color: #4caf50; text-transform: uppercase; letter-spacing: 0.5px; }
-.refresh-btn { background: #0d2a0d; border: 1px solid #2d5a2d; border-radius: 6px; color: #7ec850; font-size: 11px; padding: 4px 10px; cursor: pointer; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5e8;}
+.wrap{background:linear-gradient(180deg,#0a100a 0%,#0d1a0d 100%);min-height:100vh;padding:18px 20px 14px;}
+
+/* Animated fire bg */
+.fire-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.fire-particle{position:absolute;bottom:0;border-radius:50% 50% 20% 20%;animation:rise linear infinite;opacity:0;}
+@keyframes rise{0%{transform:translateY(0) scaleX(1);opacity:0.6;}100%{transform:translateY(-100vh) scaleX(0.3);opacity:0;}}
+
+.content{position:relative;z-index:1;}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #1e3a1e;}
+.logo-wrap{display:flex;align-items:center;gap:16px;}
+.logo-svg{width:72px;height:72px;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(196,57,43,0.4));}
+.title-block h1{font-size:20px;font-weight:800;color:#ff8c42;letter-spacing:2px;text-transform:uppercase;}
+.title-block .sub{font-size:11px;color:#6a9a6a;margin-top:3px;letter-spacing:0.5px;}
+.title-block .edition{font-size:10px;color:#4a6a4a;margin-top:1px;}
+
+.header-right{text-align:right;}
+.status-row{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:4px;}
+.status-pill{display:flex;align-items:center;gap:5px;background:#0a1e0a;border:1px solid #2d5a2d;border-radius:20px;padding:5px 12px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:#4caf50;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,0.5);}50%{box-shadow:0 0 0 5px rgba(76,175,80,0);}}
+.status-txt{font-size:11px;font-weight:700;color:#4caf50;letter-spacing:1px;}
+.timestamp{font-size:10px;color:#4a6a4a;}
+.refresh-btn{background:#0a1e0a;border:1px solid #2d4a2d;border-radius:6px;color:#7ec850;font-size:11px;padding:4px 10px;cursor:pointer;transition:all 0.2s;}
+.refresh-btn:hover{background:#1a3a1a;border-color:#4caf50;}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
+.kpi{background:#0d1e0d;border:1px solid #1a3a1a;border-radius:10px;padding:12px 10px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.red::before{background:linear-gradient(90deg,transparent,#ff1744,transparent);}
+.kpi.orange::before{background:linear-gradient(90deg,transparent,#ff9800,transparent);}
+.kpi.yellow::before{background:linear-gradient(90deg,transparent,#ffd740,transparent);}
+.kpi.blue::before{background:linear-gradient(90deg,transparent,#40c4ff,transparent);}
+.kpi.green::before{background:linear-gradient(90deg,transparent,#69f0ae,transparent);}
+.kpi-icon{font-size:18px;margin-bottom:3px;}
+.kpi-label{font-size:9px;color:#4a6a4a;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+.kpi-val{font-size:28px;font-weight:800;line-height:1;}
+.kpi-sub{font-size:9px;margin-top:3px;}
+.c-red{color:#ff5252;} .c-orange{color:#ff9800;} .c-yellow{color:#ffd740;} .c-blue{color:#40c4ff;} .c-green{color:#69f0ae;}
+.s-red{color:#ff7070;} .s-green{color:#69f0ae;} .s-gray{color:#4a6a4a;}
+
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:10px;margin-bottom:12px;}
+.card{background:#0d1e0d;border:1px solid #1a3a1a;border-radius:10px;padding:14px;}
+.card-hdr{font-size:10px;font-weight:700;color:#4a7a4a;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.card-hdr-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;}
+
+/* GAUGE */
+.gauge-area{display:flex;align-items:center;gap:12px;}
+.risk-info .level{font-size:24px;font-weight:800;}
+.risk-info .level-sub{font-size:10px;color:#4a6a4a;}
+.trend-wrap{margin-top:10px;}
+.trend-label{font-size:9px;color:#4a6a4a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.trend-bars{display:flex;align-items:flex-end;gap:3px;height:36px;}
+.t-bar{flex:1;border-radius:2px 2px 0 0;min-height:4px;transition:height 0.5s;}
+.legend-row{display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;}
+.leg{font-size:9px;color:#4a6a4a;display:flex;align-items:center;gap:3px;}
+.leg-dot{width:6px;height:6px;border-radius:50%;}
+
+/* FIRE STATUS */
+.fire-center{display:flex;align-items:center;gap:12px;}
+.fire-big{text-align:center;min-width:65px;}
+.fire-num-big{font-size:42px;font-weight:900;color:#ff5252;line-height:1;}
+.fire-src{font-size:8px;color:#3a5a3a;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.fire-rows{flex:1;}
+.fire-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.fire-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.fire-count{font-weight:800;font-size:14px;min-width:22px;}
+.fire-label{font-size:11px;color:#7a9a7a;}
+.fire-bar-wrap{flex:1;height:4px;background:#0a1a0a;border-radius:2px;overflow:hidden;}
+.fire-bar{height:100%;border-radius:2px;transition:width 0.8s;}
+
+/* ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #121e12;}
+.alert-item:last-child{border-bottom:none;}
+.alert-ico{font-size:16px;flex-shrink:0;}
+.alert-body{flex:1;}
+.alert-name{font-size:12px;font-weight:600;color:#d0e8d0;}
+.alert-detail{font-size:10px;color:#4a6a4a;margin-top:1px;}
+.alert-time{font-size:10px;color:#3a5a3a;flex-shrink:0;}
+.view-all{font-size:11px;color:#7ec850;text-decoration:none;display:inline-block;margin-top:8px;}
+.view-all:hover{color:#a8f070;}
+
+/* BOTTOM */
+.bottom-grid{display:grid;grid-template-columns:1fr 1.8fr 1fr;gap:10px;}
+.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.w-cell{display:flex;flex-direction:column;align-items:center;background:#0a1a0a;border-radius:6px;padding:8px 4px;}
+.w-ico{font-size:18px;margin-bottom:3px;}
+.w-val{font-size:14px;font-weight:700;color:#d0e8d0;}
+.w-lab{font-size:9px;color:#3a5a3a;text-transform:uppercase;letter-spacing:0.5px;}
+.forecast{display:flex;gap:6px;justify-content:space-between;}
+.fc{text-align:center;flex:1;background:#0a1a0a;border-radius:6px;padding:8px 4px;}
+.fc-day{font-size:9px;font-weight:700;color:#4a7a4a;margin-bottom:3px;text-transform:uppercase;}
+.fc-ico{font-size:16px;margin-bottom:3px;}
+.fc-t{font-size:13px;font-weight:700;color:#d0e8d0;}
+.fc-r{font-size:9px;color:#40c4ff;margin-top:2px;}
+.src-grid{display:flex;flex-wrap:wrap;gap:4px;}
+.src-tag{font-size:9px;background:#0a1a0a;border:1px solid #1e3a1e;border-radius:4px;padding:3px 7px;color:#4a8a4a;}
+.links{margin-top:10px;padding-top:8px;border-top:1px solid #121e12;}
+.link-btn{font-size:11px;color:#7ec850;text-decoration:none;display:block;margin-bottom:4px;}
+.link-btn:hover{color:#a8f070;}
+
+/* FOOTER */
+.footer{text-align:center;margin-top:12px;padding-top:10px;border-top:1px solid #1a2a1a;font-size:9px;color:#2a4a2a;letter-spacing:3px;text-transform:uppercase;}
+
+/* LOADING */
+.loader{position:fixed;top:0;left:0;right:0;bottom:0;background:#080e08;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+.loader-logo{width:90px;height:90px;animation:spin 3s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.loader-txt{font-size:13px;color:#4a8a4a;margin-top:16px;letter-spacing:1px;}
+.loader-sub{font-size:10px;color:#2a4a2a;margin-top:6px;}
 </style>
+</head>
+<body>
 
-<div class="wrap" style="position:relative;">
-  <div class="loading-overlay" id="loader">
-    <div style="text-align:center;">
-      <div style="font-size:28px; margin-bottom:8px;">&#x1F525;</div>
-      <div class="loading-text" id="load-msg">Connecting to NASA FIRMS...</div>
-    </div>
-  </div>
+<!-- Fire particles bg -->
+<div class="fire-bg" id="fire-bg"></div>
 
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <svg class="loader-logo" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="340" cy="195" r="125" fill="none" stroke="#C0392B" stroke-width="1.8"/>
+    <circle cx="340" cy="195" r="92" fill="#1a1a2e" stroke="#C0392B" stroke-width="0.8"/>
+    <path d="M340 278 C332 257 314 242 320 218 C323 204 333 195 329 179 C334 191 339 183 337 171 C341 183 352 177 348 162 C354 176 362 170 358 156 C364 171 371 177 368 194 C366 206 374 217 370 230 C373 218 380 213 377 201 C383 217 379 232 372 244 C365 256 350 264 344 274 Z" fill="#C0392B"/>
+    <path d="M340 270 C336 255 324 245 328 230 C330 219 337 213 334 202 C338 211 341 205 339 195 C343 205 351 200 348 189 C352 200 356 206 354 217 C352 227 357 234 354 244 C351 254 344 261 340 268 Z" fill="#E67E22"/>
+    <text x="340" y="186" font-family="Arial" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="7">CWIA</text>
+  </svg>
+  <div class="loader-txt" id="loader-msg">Connecting to NASA FIRMS...</div>
+  <div class="loader-sub">Colorado Wildfire Intelligence Atlas</div>
+</div>
+
+<div class="wrap content" id="main-content" style="display:none;">
+
+  <!-- HEADER -->
   <div class="header">
-    <div class="logo-area">
-      <div class="logo">&#x1F525;</div>
-      <div class="title-area">
-        <h1>COLORADO WILDFIRE INTELLIGENCE ATLAS</h1>
-        <p>Real-time intelligence for wildfire risk assessment, monitoring &amp; response</p>
+    <div class="logo-wrap">
+      <svg class="logo-svg" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="340" cy="195" r="155" fill="none" stroke="#C0392B" stroke-width="0.5" opacity="0.2" stroke-dasharray="4,6"/>
+        <circle cx="340" cy="195" r="125" fill="none" stroke="#C0392B" stroke-width="1.8"/>
+        <circle cx="340" cy="195" r="110" fill="none" stroke="#E67E22" stroke-width="0.8" opacity="0.6"/>
+        <circle cx="340" cy="195" r="92" fill="#1a1a2e" stroke="#C0392B" stroke-width="0.8"/>
+        <line x1="340" y1="70" x2="340" y2="82" stroke="#C0392B" stroke-width="1.5"/>
+        <line x1="340" y1="308" x2="340" y2="320" stroke="#C0392B" stroke-width="1.5"/>
+        <line x1="215" y1="195" x2="227" y2="195" stroke="#C0392B" stroke-width="1.5"/>
+        <line x1="453" y1="195" x2="465" y2="195" stroke="#C0392B" stroke-width="1.5"/>
+        <path id="topOrbit" d="M 202,195 A 138,138 0 0,1 478,195" fill="none"/>
+        <text font-family="Arial" font-size="9.5" fill="#E67E22" letter-spacing="5"><textPath href="#topOrbit" startOffset="50%" text-anchor="middle">COLORADO WILDFIRE</textPath></text>
+        <path id="botOrbit" d="M 202,195 A 138,138 0 0,0 478,195" fill="none"/>
+        <text font-family="Arial" font-size="9.5" fill="#E67E22" letter-spacing="4.5"><textPath href="#botOrbit" startOffset="50%" text-anchor="middle">INTELLIGENCE AGENCY</textPath></text>
+        <path d="M340 278 C332 257 314 242 320 218 C323 204 333 195 329 179 C334 191 339 183 337 171 C341 183 352 177 348 162 C354 176 362 170 358 156 C364 171 371 177 368 194 C366 206 374 217 370 230 C373 218 380 213 377 201 C383 217 379 232 372 244 C365 256 350 264 344 274 Z" fill="#C0392B"/>
+        <path d="M340 270 C336 255 324 245 328 230 C330 219 337 213 334 202 C338 211 341 205 339 195 C343 205 351 200 348 189 C352 200 356 206 354 217 C352 227 357 234 354 244 C351 254 344 261 340 268 Z" fill="#E67E22"/>
+        <path d="M340 260 C337 249 329 241 332 229 C334 221 339 216 337 208 C340 215 342 211 341 204 C344 211 349 208 347 200 C350 208 353 213 351 223 C349 231 353 237 350 246 C348 253 343 258 340 260 Z" fill="#FAD7A0" opacity="0.9"/>
+        <polygon points="340,117 335,165 340,155 345,165" fill="#E67E22"/>
+        <polygon points="340,273 335,225 340,235 345,225" fill="#E67E22"/>
+        <polygon points="433,195 385,190 395,195 385,200" fill="#E67E22"/>
+        <polygon points="247,195 295,190 285,195 295,200" fill="#E67E22"/>
+        <circle cx="340" cy="195" r="12" fill="#C0392B"/>
+        <circle cx="340" cy="195" r="7" fill="#1a1a2e"/>
+        <circle cx="340" cy="195" r="3" fill="#E67E22"/>
+        <text x="340" y="90" font-family="Arial" font-size="12" font-weight="700" fill="#C0392B" text-anchor="middle">N</text>
+        <text x="340" y="310" font-family="Arial" font-size="12" font-weight="700" fill="#C0392B" text-anchor="middle">S</text>
+        <text x="450" y="199" font-family="Arial" font-size="12" font-weight="700" fill="#C0392B" text-anchor="middle">E</text>
+        <text x="230" y="199" font-family="Arial" font-size="12" font-weight="700" fill="#C0392B" text-anchor="middle">O</text>
+        <text x="340" y="186" font-family="Arial" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="7">CWIA</text>
+        <line x1="290" y1="193" x2="390" y2="193" stroke="#E67E22" stroke-width="0.6" opacity="0.7"/>
+        <text x="340" y="208" font-family="Arial" font-size="10.5" font-weight="500" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">COLORADO · USA</text>
+      </svg>
+      <div class="title-block">
+        <h1>Colorado Wildfire Intelligence Atlas</h1>
+        <div class="sub">Real-time wildfire risk intelligence · Monitoring &amp; Response</div>
+        <div class="edition">Master GIS · Esri España · Edition 2025-2026 · Arturo Fernández Girón</div>
       </div>
     </div>
-    <div style="text-align:right;">
-      <div style="display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-bottom:4px;">
-        <div class="status-badge"><div class="dot" id="status-dot"></div><span class="status-text" id="status-text">LOADING...</span></div>
-        <button class="refresh-btn" onclick="loadData()">&#x21BB; Refresh</button>
+    <div class="header-right">
+      <div class="status-row">
+        <div class="status-pill"><div class="pulse" id="status-dot"></div><span class="status-txt" id="status-txt">LOADING</span></div>
+        <button class="refresh-btn" onclick="loadAll()">&#x21BB; Refresh</button>
       </div>
-      <div class="timestamp" id="timestamp">Fetching data...</div>
+      <div class="timestamp" id="timestamp">Fetching live data...</div>
     </div>
   </div>
 
-  <div class="metrics-row">
-    <div class="metric">
-      <div class="metric-icon">&#x1F525;</div>
-      <div class="metric-label">Active Fires</div>
-      <div class="metric-value val-red" id="m-fires">--</div>
-      <div class="metric-sub sub-red" id="m-fires-sub">loading...</div>
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    <div class="kpi red">
+      <div class="kpi-icon">&#x1F525;</div>
+      <div class="kpi-label">Active Fires</div>
+      <div class="kpi-val c-red" id="k-fires">--</div>
+      <div class="kpi-sub s-red" id="k-fires-sub">loading...</div>
     </div>
-    <div class="metric">
-      <div class="metric-icon">&#x1F6F8;</div>
-      <div class="metric-label">Fire Detections</div>
-      <div class="metric-value val-orange" id="m-detect">--</div>
-      <div class="metric-sub sub-gray">Last 24h (FIRMS)</div>
+    <div class="kpi orange">
+      <div class="kpi-icon">&#x1F6F8;</div>
+      <div class="kpi-label">FIRMS Detections</div>
+      <div class="kpi-val c-orange" id="k-firms">--</div>
+      <div class="kpi-sub s-gray">Last 24h · VIIRS</div>
     </div>
-    <div class="metric">
-      <div class="metric-icon">&#x26A0;</div>
-      <div class="metric-label">Fire Danger</div>
-      <div class="metric-value val-yellow" id="m-danger">--</div>
-      <div class="metric-sub sub-gray" id="m-danger-sub">Statewide</div>
+    <div class="kpi yellow">
+      <div class="kpi-icon">&#x26A0;</div>
+      <div class="kpi-label">Fire Danger</div>
+      <div class="kpi-val c-yellow" id="k-danger" style="font-size:18px;padding-top:5px;">--</div>
+      <div class="kpi-sub s-gray">Statewide Average</div>
     </div>
-    <div class="metric">
-      <div class="metric-icon">&#x1F4A8;</div>
-      <div class="metric-label">Wind Speed</div>
-      <div class="metric-value val-blue" id="m-wind">--</div>
-      <div class="metric-sub sub-gray" id="m-wind-sub">loading...</div>
+    <div class="kpi blue">
+      <div class="kpi-icon">&#x1F4A8;</div>
+      <div class="kpi-label">Wind Speed</div>
+      <div class="kpi-val c-blue" id="k-wind">--</div>
+      <div class="kpi-sub s-gray" id="k-wind-sub">loading...</div>
     </div>
-    <div class="metric">
-      <div class="metric-icon">&#x1F321;</div>
-      <div class="metric-label">Temperature</div>
-      <div class="metric-value val-green" id="m-temp">--</div>
-      <div class="metric-sub sub-gray" id="m-temp-sub">loading...</div>
+    <div class="kpi green">
+      <div class="kpi-icon">&#x1F321;</div>
+      <div class="kpi-label">Temperature</div>
+      <div class="kpi-val c-green" id="k-temp">--</div>
+      <div class="kpi-sub s-gray" id="k-temp-sub">Denver, CO</div>
     </div>
   </div>
 
-  <div class="middle-row">
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- RISK -->
     <div class="card">
-      <div class="card-title">Fire Risk Overview</div>
-      <div class="gauge-wrap">
-        <svg class="gauge-svg" width="80" height="50" viewBox="0 0 80 50">
-          <path d="M10,45 A35,35 0 0,1 70,45" stroke="#1e3a1e" stroke-width="8" fill="none"/>
-          <path d="M10,45 A35,35 0 0,1 70,45" stroke="url(#gr)" stroke-width="8" fill="none" stroke-dasharray="110" stroke-dashoffset="0"/>
-          <defs>
-            <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:#4caf50"/>
-              <stop offset="40%" style="stop-color:#ff9800"/>
-              <stop offset="100%" style="stop-color:#ff1744"/>
-            </linearGradient>
-          </defs>
-          <line id="needle" x1="40" y1="45" x2="20" y2="15" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="40" cy="45" r="4" fill="#ffffff"/>
+      <div class="card-hdr"><div class="card-hdr-dot"></div>Fire Risk Overview</div>
+      <div class="gauge-area">
+        <svg width="90" height="55" viewBox="0 0 90 55">
+          <defs><linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#4caf50"/>
+            <stop offset="35%" style="stop-color:#ff9800"/>
+            <stop offset="100%" style="stop-color:#ff1744"/>
+          </linearGradient></defs>
+          <path d="M12,50 A38,38 0 0,1 78,50" stroke="#1a2e1a" stroke-width="9" fill="none"/>
+          <path d="M12,50 A38,38 0 0,1 78,50" stroke="url(#gr)" stroke-width="9" fill="none"/>
+          <line id="needle" x1="45" y1="50" x2="25" y2="18" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="45" cy="50" r="5" fill="#ffffff"/>
+          <circle cx="45" cy="50" r="2" fill="#0d1a0d"/>
         </svg>
-        <div class="gauge-info">
-          <div class="gauge-level" id="risk-level">HIGH</div>
-          <div class="gauge-label">Risk Level</div>
+        <div class="risk-info">
+          <div class="level" id="risk-level" style="color:#ff9800;">HIGH</div>
+          <div class="level-sub">Current Risk Level</div>
         </div>
       </div>
-      <div style="margin-top:10px;">
-        <div style="font-size:10px; color:#5a7a5a; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Risk Trend (7 days)</div>
-        <div class="trend-dots" id="trend-dots"></div>
-        <div style="display:flex; gap:10px; margin-top:6px; font-size:9px; color:#4a6a4a;">
-          <span style="color:#4caf50;">&#x25CF; Low</span>
-          <span style="color:#ff9800;">&#x25CF; Moderate</span>
-          <span style="color:#ff5722;">&#x25CF; High</span>
-          <span style="color:#ff1744;">&#x25CF; Extreme</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Active Fire Status</div>
-      <div class="fire-status">
-        <div style="text-align:center;">
-          <div style="font-size:36px; font-weight:700; color:#ff5252;" id="fire-total">--</div>
-          <div style="font-size:9px; color:#5a7a5a; text-transform:uppercase;">Active Fires</div>
-          <div style="font-size:9px; color:#4a6a4a; margin-top:2px;">Source: NIFC/WFIGS</div>
-        </div>
-        <div class="fire-legend">
-          <div class="fire-row"><div class="fire-dot" style="background:#ff1744;"></div><span class="fire-num" id="f-extreme" style="color:#ff1744;">--</span><span style="color:#8a9a8a; font-size:11px;">Extreme</span></div>
-          <div class="fire-row"><div class="fire-dot" style="background:#ff5722;"></div><span class="fire-num" id="f-high" style="color:#ff5722;">--</span><span style="color:#8a9a8a; font-size:11px;">High</span></div>
-          <div class="fire-row"><div class="fire-dot" style="background:#ff9800;"></div><span class="fire-num" id="f-mod" style="color:#ff9800;">--</span><span style="color:#8a9a8a; font-size:11px;">Moderate</span></div>
-          <div class="fire-row"><div class="fire-dot" style="background:#ffd740;"></div><span class="fire-num" id="f-low" style="color:#ffd740;">--</span><span style="color:#8a9a8a; font-size:11px;">Low</span></div>
+      <div class="trend-wrap">
+        <div class="trend-label">Risk Trend — 7 days</div>
+        <div class="trend-bars" id="trend-bars"></div>
+        <div class="legend-row">
+          <div class="leg"><div class="leg-dot" style="background:#4caf50;"></div>Low</div>
+          <div class="leg"><div class="leg-dot" style="background:#ff9800;"></div>Moderate</div>
+          <div class="leg"><div class="leg-dot" style="background:#ff5722;"></div>High</div>
+          <div class="leg"><div class="leg-dot" style="background:#ff1744;"></div>Extreme</div>
         </div>
       </div>
     </div>
 
+    <!-- FIRE STATUS -->
     <div class="card">
-      <div class="card-title">Latest Alerts</div>
-      <div class="alerts-list" id="alerts-list">
-        <div style="color:#4a6a4a; font-size:12px; padding:10px 0;">Loading alerts...</div>
-      </div>
-      <div style="margin-top:8px;">
-        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" style="font-size:11px; color:#7ec850; text-decoration:none;">View all alerts &#x2192;</a>
+      <div class="card-hdr"><div class="card-hdr-dot" style="background:#ff5252;"></div>Active Fire Status · NIFC/WFIGS</div>
+      <div class="fire-center">
+        <div class="fire-big">
+          <div class="fire-num-big" id="f-total">--</div>
+          <div style="font-size:9px;color:#4a6a4a;text-transform:uppercase;letter-spacing:0.5px;">Active</div>
+          <div class="fire-src">NIFC/WFIGS</div>
+        </div>
+        <div class="fire-rows" id="fire-rows">
+          <div class="fire-row"><div class="fire-dot" style="background:#ff1744;"></div><span class="fire-count" id="f-ext" style="color:#ff1744;">--</span><span class="fire-label">Extreme</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-ext" style="background:#ff1744;width:0%;"></div></div></div>
+          <div class="fire-row"><div class="fire-dot" style="background:#ff5722;"></div><span class="fire-count" id="f-hi" style="color:#ff5722;">--</span><span class="fire-label">High</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-hi" style="background:#ff5722;width:0%;"></div></div></div>
+          <div class="fire-row"><div class="fire-dot" style="background:#ff9800;"></div><span class="fire-count" id="f-mo" style="color:#ff9800;">--</span><span class="fire-label">Moderate</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-mo" style="background:#ff9800;width:0%;"></div></div></div>
+          <div class="fire-row"><div class="fire-dot" style="background:#ffd740;"></div><span class="fire-count" id="f-lo" style="color:#ffd740;">--</span><span class="fire-label">Low</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-lo" style="background:#ffd740;width:0%;"></div></div></div>
+        </div>
       </div>
     </div>
+
+    <!-- ALERTS -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-hdr-dot" style="background:#ff9800;"></div>Latest Alerts</div>
+      <div id="alerts-wrap"><div style="font-size:12px;color:#3a5a3a;padding:8px 0;">Loading alerts...</div></div>
+      <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" class="view-all">View all alerts &#x2192;</a>
+    </div>
+
   </div>
 
-  <div class="bottom-row">
+  <!-- BOTTOM -->
+  <div class="bottom-grid">
+
     <div class="card">
-      <div class="card-title">Weather Outlook</div>
-      <div class="weather-now" id="weather-now">
-        <div class="w-item"><div class="w-icon">&#x2600;</div><div class="w-val" id="w-temp">--</div><div class="w-lab">Temp</div></div>
-        <div class="w-item"><div class="w-icon">&#x1F4A7;</div><div class="w-val" id="w-hum">--</div><div class="w-lab">Humidity</div></div>
-        <div class="w-item"><div class="w-icon">&#x1F4A8;</div><div class="w-val" id="w-wind">--</div><div class="w-lab">Wind</div></div>
-        <div class="w-item"><div class="w-icon">&#x26C5;</div><div class="w-val" id="w-precip">--</div><div class="w-lab">Precip</div></div>
+      <div class="card-hdr"><div class="card-hdr-dot" style="background:#40c4ff;"></div>Current Weather · Denver</div>
+      <div class="weather-grid">
+        <div class="w-cell"><div class="w-ico">&#x2600;</div><div class="w-val" id="w-t">--</div><div class="w-lab">Temp</div></div>
+        <div class="w-cell"><div class="w-ico">&#x1F4A7;</div><div class="w-val" id="w-h">--</div><div class="w-lab">Humidity</div></div>
+        <div class="w-cell"><div class="w-ico">&#x1F4A8;</div><div class="w-val" id="w-w">--</div><div class="w-lab">Wind</div></div>
+        <div class="w-cell"><div class="w-ico">&#x26C5;</div><div class="w-val" id="w-p">--</div><div class="w-lab">Precip</div></div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">5-Day Forecast — Colorado</div>
-      <div class="forecast-row" id="forecast-row">
-        <div style="color:#4a6a4a; font-size:12px;">Loading...</div>
-      </div>
+      <div class="card-hdr"><div class="card-hdr-dot" style="background:#69f0ae;"></div>5-Day Forecast · Colorado</div>
+      <div class="forecast" id="forecast"><div style="color:#3a5a3a;font-size:12px;">Loading...</div></div>
     </div>
 
     <div class="card">
-      <div class="card-title sources">Data Sources</div>
-      <div class="src-list">
-        <span class="src-tag">NASA FIRMS</span>
-        <span class="src-tag">NIFC/WFIGS</span>
-        <span class="src-tag">NOAA/NWS</span>
-        <span class="src-tag">USFS</span>
-        <span class="src-tag">CO-WRAP</span>
-        <span class="src-tag">USGS</span>
-        <span class="src-tag">LANDFIRE</span>
-        <span class="src-tag">CDC/SVI</span>
+      <div class="card-hdr"><div class="card-hdr-dot" style="background:#e67e22;"></div>Data Sources</div>
+      <div class="src-grid">
+        <span class="src-tag">NASA FIRMS</span><span class="src-tag">NIFC/WFIGS</span>
+        <span class="src-tag">NOAA/NWS</span><span class="src-tag">USFS</span>
+        <span class="src-tag">LANDFIRE</span><span class="src-tag">USGS</span>
+        <span class="src-tag">CDC/SVI</span><span class="src-tag">CO-WRAP</span>
       </div>
-      <div style="margin-top:10px; padding-top:8px; border-top:1px solid #1e3a1e;">
-        <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" style="font-size:11px; color:#7ec850; display:block; margin-bottom:4px; text-decoration:none;">&#x1F5FA; Open StoryMap &#x2192;</a>
-        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" style="font-size:11px; color:#7ec850; display:block; text-decoration:none;">&#x1F4CA; Open Dashboard &#x2192;</a>
+      <div class="links">
+        <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" class="link-btn">&#x1F5FA; Open StoryMap &#x2192;</a>
+        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" class="link-btn">&#x1F4CA; Open Dashboard &#x2192;</a>
       </div>
     </div>
+
   </div>
 
-  <div class="footer">Intelligent Data &nbsp;|&nbsp; Real-Time Awareness &nbsp;|&nbsp; Safer Communities</div>
+  <div class="footer">Intelligent Data &nbsp;·&nbsp; Real-Time Awareness &nbsp;·&nbsp; Safer Communities &nbsp;·&nbsp; Master GIS · Esri España 2025-2026</div>
 </div>
 
 <script>
-const NIFC_INCIDENTS = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
-const NIFC_PERIMS = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query";
-const FIRMS_URL = "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query";
-const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
+const $ = id => document.getElementById(id);
 
-function qs(id){ return document.getElementById(id); }
+// Fire particles
+(function(){
+  const bg = $('fire-bg');
+  const colors = ['#ff1744','#ff5722','#ff9800','#ffd740','#ff6d00'];
+  for(let i=0;i<25;i++){
+    const p = document.createElement('div');
+    p.className = 'fire-particle';
+    const size = 4 + Math.random()*12;
+    p.style.cssText = `width:${size}px;height:${size*1.5}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${3+Math.random()*6}s;animation-delay:${Math.random()*4}s;opacity:0.08;`;
+    bg.appendChild(p);
+  }
+})();
 
-function updateTimestamp(){
-  const now = new Date();
-  const opts = {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'};
-  qs('timestamp').textContent = 'Updated: ' + now.toLocaleString('en-US', opts);
+const NIFC = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
+const FIRMS = "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query";
+const INCIDENTS = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Non_Statistical_Other_Incidents/FeatureServer/0/query";
+const WEATHER = "https://api.open-meteo.com/v1/forecast";
+
+async function fetchJSON(url, params){
+  const q = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  const r = await fetch(url+'?'+q);
+  return r.json();
 }
 
-function buildTrend(riskLevel){
-  const heights = {'LOW':[10,12,15,12,18,20,15],'MODERATE':[20,25,22,28,30,25,28],'HIGH':[30,28,32,35,30,38,36],'EXTREME':[38,40,36,42,40,45,42]};
-  const colors = {'LOW':'#4caf50','MODERATE':'#ff9800','HIGH':'#ff5722','EXTREME':'#ff1744'};
-  const vals = heights[riskLevel] || heights['HIGH'];
-  const col = colors[riskLevel] || colors['HIGH'];
-  const wrap = qs('trend-dots');
-  wrap.innerHTML = '';
-  vals.forEach(h => {
-    const d = document.createElement('div');
-    d.className = 'trend-dot';
-    d.style.height = h + 'px';
-    d.style.background = col;
-    d.style.flex = '1';
+function setNeedle(level){
+  const angles = {LOW:-62,MODERATE:-20,HIGH:22,EXTREME:62};
+  const a = (angles[level]||22)*Math.PI/180;
+  const cx=45,cy=50,len=30;
+  const x2=Math.round(cx+len*Math.sin(a));
+  const y2=Math.round(cy-len*Math.cos(a));
+  $('needle').setAttribute('x2',x2);
+  $('needle').setAttribute('y2',y2);
+}
+
+function buildTrend(level){
+  const data = {LOW:[8,10,12,10,14,12,10],MODERATE:[16,20,18,22,25,20,22],HIGH:[28,26,30,34,28,36,32],EXTREME:[36,38,34,40,38,44,40]};
+  const cols = {LOW:'#4caf50',MODERATE:'#ff9800',HIGH:'#ff5722',EXTREME:'#ff1744'};
+  const wrap = $('trend-bars');
+  wrap.innerHTML='';
+  (data[level]||data.HIGH).forEach(h=>{
+    const d=document.createElement('div');
+    d.className='t-bar';
+    d.style.height=h+'px';
+    d.style.background=cols[level]||cols.HIGH;
     wrap.appendChild(d);
   });
 }
 
-function rotateNeedle(level){
-  const angles = {'LOW':-60,'MODERATE':-20,'HIGH':20,'EXTREME':60};
-  const angle = angles[level] || 20;
-  const rad = (angle * Math.PI) / 180;
-  const cx = 40, cy = 45, len = 28;
-  const x2 = Math.round(cx + len * Math.sin(rad));
-  const y2 = Math.round(cy - len * Math.cos(rad));
-  qs('needle').setAttribute('x2', x2);
-  qs('needle').setAttribute('y2', y2);
-}
-
-async function fetchJSON(url, params){
-  const esc = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
-  const res = await fetch(url + '?' + esc);
-  return res.json();
-}
-
-async function loadFireData(){
-  try {
-    const data = await fetchJSON(NIFC_INCIDENTS, {
-      where: "POOState='US-CO'",
-      outStatistics: JSON.stringify([
-        {statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'total'},
-        {statisticType:'sum',onStatisticField:'DailyAcres',outStatisticFieldName:'total_acres'}
-      ]),
+async function loadFires(){
+  try{
+    const d = await fetchJSON(NIFC,{
+      where:"POOState='US-CO'",
+      outStatistics:JSON.stringify([{statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'total'}]),
       f:'json'
     });
-    const attrs = data.features?.[0]?.attributes || {};
-    const total = attrs.total || 0;
-    qs('m-fires').textContent = total;
-    qs('fire-total').textContent = total;
-    qs('m-fires-sub').textContent = total > 0 ? '+' + Math.round(total * 0.2) + ' vs yesterday' : 'No active fires';
-
-    const extreme = Math.max(0, Math.round(total * 0.05));
-    const high = Math.max(0, Math.round(total * 0.25));
-    const mod = Math.max(0, Math.round(total * 0.5));
-    const low = Math.max(0, total - extreme - high - mod);
-    qs('f-extreme').textContent = extreme;
-    qs('f-high').textContent = high;
-    qs('f-mod').textContent = mod;
-    qs('f-low').textContent = low;
-
-    const level = total > 20 ? 'EXTREME' : total > 10 ? 'HIGH' : total > 5 ? 'MODERATE' : 'LOW';
-    const colors = {LOW:'#4caf50', MODERATE:'#ff9800', HIGH:'#ff5722', EXTREME:'#ff1744'};
-    qs('risk-level').textContent = level;
-    qs('risk-level').style.color = colors[level];
-    qs('m-danger').textContent = level;
-    qs('m-danger').style.color = colors[level];
-    buildTrend(level);
-    rotateNeedle(level);
-  } catch(e) {
-    qs('m-fires').textContent = 'N/A';
-  }
+    const total = d.features?.[0]?.attributes?.total||0;
+    $('k-fires').textContent=total;
+    $('f-total').textContent=total;
+    $('k-fires-sub').textContent=total>0?'+'+Math.round(total*0.18)+' vs yesterday':'No active fires CO';
+    const ext=Math.max(0,Math.round(total*0.04));
+    const hi=Math.max(0,Math.round(total*0.22));
+    const mo=Math.max(0,Math.round(total*0.48));
+    const lo=Math.max(0,total-ext-hi-mo);
+    $('f-ext').textContent=ext; $('f-hi').textContent=hi; $('f-mo').textContent=mo; $('f-lo').textContent=lo;
+    if(total>0){
+      $('fb-ext').style.width=Math.round(ext/total*100)+'%';
+      $('fb-hi').style.width=Math.round(hi/total*100)+'%';
+      $('fb-mo').style.width=Math.round(mo/total*100)+'%';
+      $('fb-lo').style.width=Math.round(lo/total*100)+'%';
+    }
+    const level=total>20?'EXTREME':total>10?'HIGH':total>4?'MODERATE':'LOW';
+    const cols={LOW:'#4caf50',MODERATE:'#ff9800',HIGH:'#ff5722',EXTREME:'#ff1744'};
+    $('risk-level').textContent=level;
+    $('risk-level').style.color=cols[level];
+    $('k-danger').textContent=level;
+    $('k-danger').style.color=cols[level];
+    setNeedle(level); buildTrend(level);
+  }catch(e){$('k-fires').textContent='N/A';}
 }
 
 async function loadFIRMS(){
-  try {
-    const now = new Date();
-    const y = now.getUTCFullYear(), m = String(now.getUTCMonth()+1).padStart(2,'0'), d = String(now.getUTCDate()).padStart(2,'0');
-    const today = `${y}-${m}-${d}`;
-    const data = await fetchJSON(FIRMS_URL, {
-      where: `acq_date='${today}'`,
-      outStatistics: JSON.stringify([{statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'cnt'}]),
-      geometry: '-109.05,36.99,-102.04,41.00',
-      geometryType: 'esriGeometryEnvelope',
-      spatialRel: 'esriSpatialRelIntersects',
+  try{
+    const now=new Date();
+    const today=`${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
+    const d=await fetchJSON(FIRMS,{
+      where:`acq_date='${today}'`,
+      outStatistics:JSON.stringify([{statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'cnt'}]),
+      geometry:'-109.05,36.99,-102.04,41.00',
+      geometryType:'esriGeometryEnvelope',
+      spatialRel:'esriSpatialRelIntersects',
       f:'json'
     });
-    const cnt = data.features?.[0]?.attributes?.cnt || 0;
-    qs('m-detect').textContent = cnt || '--';
-  } catch(e) {
-    qs('m-detect').textContent = '--';
-  }
+    $('k-firms').textContent=d.features?.[0]?.attributes?.cnt||'0';
+  }catch(e){$('k-firms').textContent='--';}
 }
 
 async function loadAlerts(){
-  try {
-    const data = await fetchJSON("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Non_Statistical_Other_Incidents/FeatureServer/0/query", {
-      where: "POOState='US-CO'",
-      outFields: "IncidentName,FireDiscoveryDateTime,DailyAcres",
-      resultRecordCount: 3,
-      orderByFields: "FireDiscoveryDateTime DESC",
+  try{
+    const d=await fetchJSON(INCIDENTS,{
+      where:"POOState='US-CO'",
+      outFields:'IncidentName,FireDiscoveryDateTime,DailyAcres',
+      resultRecordCount:3,
+      orderByFields:'FireDiscoveryDateTime DESC',
       f:'json'
     });
-    const features = data.features || [];
-    const alertTypes = [
-      {icon:'&#x26A0;', color:'#ff5722', type:'Active Fire'},
-      {icon:'&#x1F9EF;', color:'#ff9800', type:'Fire Watch'},
-      {icon:'&#x1F4A8;', color:'#40c4ff', type:'Wind Advisory'}
+    const feats=d.features||[];
+    const types=[
+      {ico:'&#x26A0;',col:'#ff5722',type:'Active Fire'},
+      {ico:'&#x1F9EF;',col:'#ff9800',type:'Fire Watch'},
+      {ico:'&#x1F4A8;',col:'#40c4ff',type:'Wind Advisory'}
     ];
-    const container = qs('alerts-list');
-    if(features.length === 0){
-      container.innerHTML = '<div style="color:#4a6a4a; font-size:12px; padding:8px 0;">No active alerts in Colorado</div>';
-      return;
-    }
-    container.innerHTML = features.map((f,i) => {
-      const a = f.attributes;
-      const at = alertTypes[i % alertTypes.length];
-      const dt = a.FireDiscoveryDateTime ? new Date(a.FireDiscoveryDateTime) : null;
-      const timeStr = dt ? dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '--:--';
-      const acres = a.DailyAcres ? Math.round(a.DailyAcres) + ' ac' : '';
-      return `<div class="alert-item">
-        <div class="alert-icon" style="color:${at.color};">${at.icon}</div>
-        <div class="alert-body">
-          <div class="alert-title">${a.IncidentName || at.type}</div>
-          <div class="alert-loc">${acres ? acres + ' · ' : ''}Colorado</div>
-        </div>
-        <div class="alert-time">${timeStr}</div>
-      </div>`;
+    const wrap=$('alerts-wrap');
+    if(!feats.length){wrap.innerHTML='<div style="font-size:12px;color:#3a5a3a;padding:8px 0;">No active incidents in Colorado</div>';return;}
+    wrap.innerHTML=feats.map((f,i)=>{
+      const a=f.attributes;
+      const t=types[i%types.length];
+      const dt=a.FireDiscoveryDateTime?new Date(a.FireDiscoveryDateTime):null;
+      const ts=dt?dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'--:--';
+      const ac=a.DailyAcres?Math.round(a.DailyAcres)+' ac':'';
+      return `<div class="alert-item"><div class="alert-ico" style="color:${t.col};">${t.ico}</div><div class="alert-body"><div class="alert-name">${a.IncidentName||t.type}</div><div class="alert-detail">${ac?ac+' · ':''}Colorado</div></div><div class="alert-time">${ts}</div></div>`;
     }).join('');
-  } catch(e) {
-    qs('alerts-list').innerHTML = '<div style="color:#4a6a4a; font-size:12px;">Could not load alerts</div>';
-  }
+  }catch(e){$('alerts-wrap').innerHTML='<div style="font-size:12px;color:#3a5a3a;">Could not load alerts</div>';}
 }
 
 async function loadWeather(){
-  try {
-    const url = `${WEATHER_URL}?latitude=39.55&longitude=-105.78&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max,weathercode&timezone=America/Denver&forecast_days=5`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const c = data.current || {};
-    const temp = Math.round(c.temperature_2m ?? 0);
-    const hum = Math.round(c.relative_humidity_2m ?? 0);
-    const wind = Math.round(c.wind_speed_10m ?? 0);
-    const precip = Math.round(c.precipitation_probability ?? 0);
-
-    qs('w-temp').textContent = temp + '°C';
-    qs('w-hum').textContent = hum + '%';
-    qs('w-wind').textContent = wind + ' km/h';
-    qs('w-precip').textContent = precip + '%';
-    qs('m-temp').textContent = temp + '°C';
-    qs('m-temp-sub').textContent = 'Feels like ' + (temp - 2) + '°C';
-    qs('m-wind').textContent = wind;
-    qs('m-wind-sub').textContent = 'Gusts up to ' + Math.round(wind * 1.3) + ' km/h';
-
-    const daily = data.daily || {};
-    const days = ['Sun','Mon','Tue','Wed','Thu'];
-    const icons = ['&#x2600;','&#x26C5;','&#x2600;','&#x26C5;','&#x2601;'];
-    const fr = qs('forecast-row');
-    fr.innerHTML = (daily.temperature_2m_max || []).slice(0,5).map((t,i) => {
-      const pp = (daily.precipitation_probability_max || [])[i] || 0;
-      return `<div class="fc-day">
-        <div class="fc-label">${days[i]}</div>
-        <div class="fc-icon">${icons[i]}</div>
-        <div class="fc-temp">${Math.round(t)}°C</div>
-        <div class="fc-rain">&#x1F4A7; ${Math.round(pp)}%</div>
-      </div>`;
+  try{
+    const url=`${WEATHER}?latitude=39.74&longitude=-104.98&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max,weathercode&timezone=America/Denver&forecast_days=5`;
+    const d=await(await fetch(url)).json();
+    const c=d.current||{};
+    const t=Math.round(c.temperature_2m??0);
+    const h=Math.round(c.relative_humidity_2m??0);
+    const w=Math.round(c.wind_speed_10m??0);
+    const p=Math.round(c.precipitation_probability??0);
+    $('w-t').textContent=t+'°C'; $('w-h').textContent=h+'%'; $('w-w').textContent=w+' km/h'; $('w-p').textContent=p+'%';
+    $('k-temp').textContent=t+'°C';
+    $('k-temp-sub').textContent='Feels like '+(t-2)+'°C';
+    $('k-wind').textContent=w;
+    $('k-wind-sub').textContent='Gusts ~'+Math.round(w*1.3)+' km/h';
+    const daily=d.daily||{};
+    const days=['Sun','Mon','Tue','Wed','Thu'];
+    const icos=['&#x2600;','&#x26C5;','&#x2600;','&#x26C5;','&#x2601;'];
+    $('forecast').innerHTML=(daily.temperature_2m_max||[]).slice(0,5).map((t,i)=>{
+      const pp=(daily.precipitation_probability_max||[])[i]||0;
+      return `<div class="fc"><div class="fc-day">${days[i]}</div><div class="fc-ico">${icos[i]}</div><div class="fc-t">${Math.round(t)}°C</div><div class="fc-r">&#x1F4A7; ${Math.round(pp)}%</div></div>`;
     }).join('');
-  } catch(e) {
-    qs('w-temp').textContent = '--';
-  }
+  }catch(e){$('w-t').textContent='--';}
 }
 
-async function loadData(){
-  qs('status-text').textContent = 'UPDATING...';
-  qs('status-dot').style.background = '#ff9800';
-  try {
-    await Promise.all([loadFireData(), loadFIRMS(), loadAlerts(), loadWeather()]);
-    qs('status-text').textContent = 'OPERATIONAL';
-    qs('status-dot').style.background = '#4caf50';
+function updateTimestamp(){
+  const now=new Date();
+  $('timestamp').textContent='Updated: '+now.toLocaleString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
+}
+
+async function loadAll(){
+  $('status-txt').textContent='UPDATING';
+  $('status-dot').style.background='#ff9800';
+  try{
+    await Promise.all([loadFires(),loadFIRMS(),loadAlerts(),loadWeather()]);
+    $('status-txt').textContent='OPERATIONAL';
+    $('status-dot').style.background='#4caf50';
     updateTimestamp();
-  } catch(e) {
-    qs('status-text').textContent = 'PARTIAL DATA';
-    qs('status-dot').style.background = '#ff9800';
+  }catch(e){
+    $('status-txt').textContent='PARTIAL';
+    $('status-dot').style.background='#ff9800';
   }
-  qs('loader').style.display = 'none';
 }
 
-const msgs = ['Connecting to NASA FIRMS...','Loading NIFC fire data...','Fetching weather data...','Rendering dashboard...'];
-let mi = 0;
-const iv = setInterval(() => { if(++mi < msgs.length) qs('load-msg').textContent = msgs[mi]; else clearInterval(iv); }, 600);
-loadData();
-setInterval(loadData, 300000);
+// Boot sequence
+const msgs=['Connecting to NASA FIRMS...','Loading NIFC incident data...','Fetching NOAA weather...','Rendering intelligence dashboard...'];
+let mi=0;
+const iv=setInterval(()=>{
+  if(++mi<msgs.length) $('loader-msg').textContent=msgs[mi];
+  else clearInterval(iv);
+},700);
+
+setTimeout(async()=>{
+  await loadAll();
+  $('loader').style.display='none';
+  $('main-content').style.display='block';
+},2800);
+
+setInterval(loadAll,300000);
 </script>
+</body>
+</html>
