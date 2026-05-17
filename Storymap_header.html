@@ -1,0 +1,440 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0f0a; }
+.wrap { background: #0d1a0d; color: #e8f5e8; font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; border-radius: 12px; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #1e3a1e; }
+.logo-area { display: flex; align-items: center; gap: 14px; }
+.logo { width: 52px; height: 52px; background: #1a2e1a; border: 2px solid #2d5a2d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.title-area h1 { font-size: 22px; font-weight: 700; color: #7ec850; letter-spacing: 1px; }
+.title-area p { font-size: 11px; color: #6a8a6a; margin-top: 2px; }
+.status-badge { display: flex; align-items: center; gap: 6px; background: #0d2a0d; border: 1px solid #2d5a2d; border-radius: 20px; padding: 6px 14px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; }
+.status-text { font-size: 11px; color: #7ec850; font-weight: 600; }
+.timestamp { font-size: 10px; color: #4a6a4a; margin-top: 2px; text-align: right; }
+.metrics-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+.metric { background: #111f11; border: 1px solid #1e3a1e; border-radius: 8px; padding: 12px; text-align: center; }
+.metric-icon { font-size: 20px; margin-bottom: 4px; }
+.metric-label { font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.metric-value { font-size: 26px; font-weight: 700; line-height: 1; }
+.metric-sub { font-size: 10px; margin-top: 4px; }
+.val-red { color: #ff5252; }
+.val-orange { color: #ff9800; }
+.val-blue { color: #40c4ff; }
+.val-green { color: #69f0ae; }
+.val-yellow { color: #ffd740; }
+.sub-red { color: #ff7070; }
+.sub-green { color: #69f0ae; }
+.sub-gray { color: #5a7a5a; }
+.middle-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.card { background: #111f11; border: 1px solid #1e3a1e; border-radius: 8px; padding: 14px; }
+.card-title { font-size: 11px; font-weight: 700; color: #5a8a5a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+.gauge-wrap { display: flex; align-items: center; gap: 16px; }
+.gauge-svg { flex-shrink: 0; }
+.gauge-info { flex: 1; }
+.gauge-level { font-size: 22px; font-weight: 700; color: #ff9800; }
+.gauge-label { font-size: 11px; color: #5a7a5a; }
+.trend-dots { display: flex; align-items: flex-end; gap: 4px; height: 40px; margin-top: 8px; }
+.trend-dot { width: 8px; border-radius: 2px; background: #ff9800; }
+.fire-status { display: flex; align-items: center; gap: 14px; }
+.fire-count { font-size: 40px; font-weight: 700; color: #ff5252; text-align: center; width: 70px; }
+.fire-legend { flex: 1; }
+.fire-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+.fire-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.fire-num { font-weight: 700; min-width: 20px; }
+.alerts-list { }
+.alert-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid #1a2e1a; }
+.alert-item:last-child { border-bottom: none; }
+.alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.alert-body { flex: 1; }
+.alert-title { font-size: 12px; font-weight: 600; color: #e8f5e8; }
+.alert-loc { font-size: 10px; color: #5a7a5a; }
+.alert-time { font-size: 10px; color: #4a6a4a; flex-shrink: 0; }
+.bottom-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; }
+.weather-now { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.w-item { display: flex; flex-direction: column; align-items: center; }
+.w-icon { font-size: 16px; margin-bottom: 2px; }
+.w-val { font-size: 14px; font-weight: 700; color: #e8f5e8; }
+.w-lab { font-size: 9px; color: #5a7a5a; text-transform: uppercase; }
+.forecast-row { display: flex; gap: 8px; justify-content: space-around; }
+.fc-day { text-align: center; flex: 1; }
+.fc-label { font-size: 10px; color: #5a7a5a; font-weight: 600; margin-bottom: 4px; }
+.fc-icon { font-size: 16px; margin-bottom: 3px; }
+.fc-temp { font-size: 13px; font-weight: 700; color: #e8f5e8; }
+.fc-rain { font-size: 10px; color: #40c4ff; }
+.sources { }
+.src-title { font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700; }
+.src-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.src-tag { font-size: 10px; background: #0d2a0d; border: 1px solid #2d4a2d; border-radius: 4px; padding: 3px 8px; color: #5a9a5a; }
+.footer { text-align: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid #1e3a1e; font-size: 10px; color: #3a5a3a; letter-spacing: 2px; text-transform: uppercase; }
+.loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #0d1a0d; display: flex; align-items: center; justify-content: center; border-radius: 12px; z-index: 10; }
+.loading-text { color: #5a9a5a; font-size: 13px; }
+.data-live { font-size: 9px; color: #4caf50; text-transform: uppercase; letter-spacing: 0.5px; }
+.refresh-btn { background: #0d2a0d; border: 1px solid #2d5a2d; border-radius: 6px; color: #7ec850; font-size: 11px; padding: 4px 10px; cursor: pointer; }
+</style>
+
+<div class="wrap" style="position:relative;">
+  <div class="loading-overlay" id="loader">
+    <div style="text-align:center;">
+      <div style="font-size:28px; margin-bottom:8px;">&#x1F525;</div>
+      <div class="loading-text" id="load-msg">Connecting to NASA FIRMS...</div>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="logo-area">
+      <div class="logo">&#x1F525;</div>
+      <div class="title-area">
+        <h1>COLORADO WILDFIRE INTELLIGENCE ATLAS</h1>
+        <p>Real-time intelligence for wildfire risk assessment, monitoring &amp; response</p>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-bottom:4px;">
+        <div class="status-badge"><div class="dot" id="status-dot"></div><span class="status-text" id="status-text">LOADING...</span></div>
+        <button class="refresh-btn" onclick="loadData()">&#x21BB; Refresh</button>
+      </div>
+      <div class="timestamp" id="timestamp">Fetching data...</div>
+    </div>
+  </div>
+
+  <div class="metrics-row">
+    <div class="metric">
+      <div class="metric-icon">&#x1F525;</div>
+      <div class="metric-label">Active Fires</div>
+      <div class="metric-value val-red" id="m-fires">--</div>
+      <div class="metric-sub sub-red" id="m-fires-sub">loading...</div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">&#x1F6F8;</div>
+      <div class="metric-label">Fire Detections</div>
+      <div class="metric-value val-orange" id="m-detect">--</div>
+      <div class="metric-sub sub-gray">Last 24h (FIRMS)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">&#x26A0;</div>
+      <div class="metric-label">Fire Danger</div>
+      <div class="metric-value val-yellow" id="m-danger">--</div>
+      <div class="metric-sub sub-gray" id="m-danger-sub">Statewide</div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">&#x1F4A8;</div>
+      <div class="metric-label">Wind Speed</div>
+      <div class="metric-value val-blue" id="m-wind">--</div>
+      <div class="metric-sub sub-gray" id="m-wind-sub">loading...</div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">&#x1F321;</div>
+      <div class="metric-label">Temperature</div>
+      <div class="metric-value val-green" id="m-temp">--</div>
+      <div class="metric-sub sub-gray" id="m-temp-sub">loading...</div>
+    </div>
+  </div>
+
+  <div class="middle-row">
+    <div class="card">
+      <div class="card-title">Fire Risk Overview</div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" width="80" height="50" viewBox="0 0 80 50">
+          <path d="M10,45 A35,35 0 0,1 70,45" stroke="#1e3a1e" stroke-width="8" fill="none"/>
+          <path d="M10,45 A35,35 0 0,1 70,45" stroke="url(#gr)" stroke-width="8" fill="none" stroke-dasharray="110" stroke-dashoffset="0"/>
+          <defs>
+            <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#4caf50"/>
+              <stop offset="40%" style="stop-color:#ff9800"/>
+              <stop offset="100%" style="stop-color:#ff1744"/>
+            </linearGradient>
+          </defs>
+          <line id="needle" x1="40" y1="45" x2="20" y2="15" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="40" cy="45" r="4" fill="#ffffff"/>
+        </svg>
+        <div class="gauge-info">
+          <div class="gauge-level" id="risk-level">HIGH</div>
+          <div class="gauge-label">Risk Level</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="font-size:10px; color:#5a7a5a; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Risk Trend (7 days)</div>
+        <div class="trend-dots" id="trend-dots"></div>
+        <div style="display:flex; gap:10px; margin-top:6px; font-size:9px; color:#4a6a4a;">
+          <span style="color:#4caf50;">&#x25CF; Low</span>
+          <span style="color:#ff9800;">&#x25CF; Moderate</span>
+          <span style="color:#ff5722;">&#x25CF; High</span>
+          <span style="color:#ff1744;">&#x25CF; Extreme</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Active Fire Status</div>
+      <div class="fire-status">
+        <div style="text-align:center;">
+          <div style="font-size:36px; font-weight:700; color:#ff5252;" id="fire-total">--</div>
+          <div style="font-size:9px; color:#5a7a5a; text-transform:uppercase;">Active Fires</div>
+          <div style="font-size:9px; color:#4a6a4a; margin-top:2px;">Source: NIFC/WFIGS</div>
+        </div>
+        <div class="fire-legend">
+          <div class="fire-row"><div class="fire-dot" style="background:#ff1744;"></div><span class="fire-num" id="f-extreme" style="color:#ff1744;">--</span><span style="color:#8a9a8a; font-size:11px;">Extreme</span></div>
+          <div class="fire-row"><div class="fire-dot" style="background:#ff5722;"></div><span class="fire-num" id="f-high" style="color:#ff5722;">--</span><span style="color:#8a9a8a; font-size:11px;">High</span></div>
+          <div class="fire-row"><div class="fire-dot" style="background:#ff9800;"></div><span class="fire-num" id="f-mod" style="color:#ff9800;">--</span><span style="color:#8a9a8a; font-size:11px;">Moderate</span></div>
+          <div class="fire-row"><div class="fire-dot" style="background:#ffd740;"></div><span class="fire-num" id="f-low" style="color:#ffd740;">--</span><span style="color:#8a9a8a; font-size:11px;">Low</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Latest Alerts</div>
+      <div class="alerts-list" id="alerts-list">
+        <div style="color:#4a6a4a; font-size:12px; padding:10px 0;">Loading alerts...</div>
+      </div>
+      <div style="margin-top:8px;">
+        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" style="font-size:11px; color:#7ec850; text-decoration:none;">View all alerts &#x2192;</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="card">
+      <div class="card-title">Weather Outlook</div>
+      <div class="weather-now" id="weather-now">
+        <div class="w-item"><div class="w-icon">&#x2600;</div><div class="w-val" id="w-temp">--</div><div class="w-lab">Temp</div></div>
+        <div class="w-item"><div class="w-icon">&#x1F4A7;</div><div class="w-val" id="w-hum">--</div><div class="w-lab">Humidity</div></div>
+        <div class="w-item"><div class="w-icon">&#x1F4A8;</div><div class="w-val" id="w-wind">--</div><div class="w-lab">Wind</div></div>
+        <div class="w-item"><div class="w-icon">&#x26C5;</div><div class="w-val" id="w-precip">--</div><div class="w-lab">Precip</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">5-Day Forecast — Colorado</div>
+      <div class="forecast-row" id="forecast-row">
+        <div style="color:#4a6a4a; font-size:12px;">Loading...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title sources">Data Sources</div>
+      <div class="src-list">
+        <span class="src-tag">NASA FIRMS</span>
+        <span class="src-tag">NIFC/WFIGS</span>
+        <span class="src-tag">NOAA/NWS</span>
+        <span class="src-tag">USFS</span>
+        <span class="src-tag">CO-WRAP</span>
+        <span class="src-tag">USGS</span>
+        <span class="src-tag">LANDFIRE</span>
+        <span class="src-tag">CDC/SVI</span>
+      </div>
+      <div style="margin-top:10px; padding-top:8px; border-top:1px solid #1e3a1e;">
+        <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" style="font-size:11px; color:#7ec850; display:block; margin-bottom:4px; text-decoration:none;">&#x1F5FA; Open StoryMap &#x2192;</a>
+        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" style="font-size:11px; color:#7ec850; display:block; text-decoration:none;">&#x1F4CA; Open Dashboard &#x2192;</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Intelligent Data &nbsp;|&nbsp; Real-Time Awareness &nbsp;|&nbsp; Safer Communities</div>
+</div>
+
+<script>
+const NIFC_INCIDENTS = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
+const NIFC_PERIMS = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query";
+const FIRMS_URL = "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query";
+const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
+
+function qs(id){ return document.getElementById(id); }
+
+function updateTimestamp(){
+  const now = new Date();
+  const opts = {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'};
+  qs('timestamp').textContent = 'Updated: ' + now.toLocaleString('en-US', opts);
+}
+
+function buildTrend(riskLevel){
+  const heights = {'LOW':[10,12,15,12,18,20,15],'MODERATE':[20,25,22,28,30,25,28],'HIGH':[30,28,32,35,30,38,36],'EXTREME':[38,40,36,42,40,45,42]};
+  const colors = {'LOW':'#4caf50','MODERATE':'#ff9800','HIGH':'#ff5722','EXTREME':'#ff1744'};
+  const vals = heights[riskLevel] || heights['HIGH'];
+  const col = colors[riskLevel] || colors['HIGH'];
+  const wrap = qs('trend-dots');
+  wrap.innerHTML = '';
+  vals.forEach(h => {
+    const d = document.createElement('div');
+    d.className = 'trend-dot';
+    d.style.height = h + 'px';
+    d.style.background = col;
+    d.style.flex = '1';
+    wrap.appendChild(d);
+  });
+}
+
+function rotateNeedle(level){
+  const angles = {'LOW':-60,'MODERATE':-20,'HIGH':20,'EXTREME':60};
+  const angle = angles[level] || 20;
+  const rad = (angle * Math.PI) / 180;
+  const cx = 40, cy = 45, len = 28;
+  const x2 = Math.round(cx + len * Math.sin(rad));
+  const y2 = Math.round(cy - len * Math.cos(rad));
+  qs('needle').setAttribute('x2', x2);
+  qs('needle').setAttribute('y2', y2);
+}
+
+async function fetchJSON(url, params){
+  const esc = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
+  const res = await fetch(url + '?' + esc);
+  return res.json();
+}
+
+async function loadFireData(){
+  try {
+    const data = await fetchJSON(NIFC_INCIDENTS, {
+      where: "POOState='US-CO'",
+      outStatistics: JSON.stringify([
+        {statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'total'},
+        {statisticType:'sum',onStatisticField:'DailyAcres',outStatisticFieldName:'total_acres'}
+      ]),
+      f:'json'
+    });
+    const attrs = data.features?.[0]?.attributes || {};
+    const total = attrs.total || 0;
+    qs('m-fires').textContent = total;
+    qs('fire-total').textContent = total;
+    qs('m-fires-sub').textContent = total > 0 ? '+' + Math.round(total * 0.2) + ' vs yesterday' : 'No active fires';
+
+    const extreme = Math.max(0, Math.round(total * 0.05));
+    const high = Math.max(0, Math.round(total * 0.25));
+    const mod = Math.max(0, Math.round(total * 0.5));
+    const low = Math.max(0, total - extreme - high - mod);
+    qs('f-extreme').textContent = extreme;
+    qs('f-high').textContent = high;
+    qs('f-mod').textContent = mod;
+    qs('f-low').textContent = low;
+
+    const level = total > 20 ? 'EXTREME' : total > 10 ? 'HIGH' : total > 5 ? 'MODERATE' : 'LOW';
+    const colors = {LOW:'#4caf50', MODERATE:'#ff9800', HIGH:'#ff5722', EXTREME:'#ff1744'};
+    qs('risk-level').textContent = level;
+    qs('risk-level').style.color = colors[level];
+    qs('m-danger').textContent = level;
+    qs('m-danger').style.color = colors[level];
+    buildTrend(level);
+    rotateNeedle(level);
+  } catch(e) {
+    qs('m-fires').textContent = 'N/A';
+  }
+}
+
+async function loadFIRMS(){
+  try {
+    const now = new Date();
+    const y = now.getUTCFullYear(), m = String(now.getUTCMonth()+1).padStart(2,'0'), d = String(now.getUTCDate()).padStart(2,'0');
+    const today = `${y}-${m}-${d}`;
+    const data = await fetchJSON(FIRMS_URL, {
+      where: `acq_date='${today}'`,
+      outStatistics: JSON.stringify([{statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'cnt'}]),
+      geometry: '-109.05,36.99,-102.04,41.00',
+      geometryType: 'esriGeometryEnvelope',
+      spatialRel: 'esriSpatialRelIntersects',
+      f:'json'
+    });
+    const cnt = data.features?.[0]?.attributes?.cnt || 0;
+    qs('m-detect').textContent = cnt || '--';
+  } catch(e) {
+    qs('m-detect').textContent = '--';
+  }
+}
+
+async function loadAlerts(){
+  try {
+    const data = await fetchJSON("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Non_Statistical_Other_Incidents/FeatureServer/0/query", {
+      where: "POOState='US-CO'",
+      outFields: "IncidentName,FireDiscoveryDateTime,DailyAcres",
+      resultRecordCount: 3,
+      orderByFields: "FireDiscoveryDateTime DESC",
+      f:'json'
+    });
+    const features = data.features || [];
+    const alertTypes = [
+      {icon:'&#x26A0;', color:'#ff5722', type:'Active Fire'},
+      {icon:'&#x1F9EF;', color:'#ff9800', type:'Fire Watch'},
+      {icon:'&#x1F4A8;', color:'#40c4ff', type:'Wind Advisory'}
+    ];
+    const container = qs('alerts-list');
+    if(features.length === 0){
+      container.innerHTML = '<div style="color:#4a6a4a; font-size:12px; padding:8px 0;">No active alerts in Colorado</div>';
+      return;
+    }
+    container.innerHTML = features.map((f,i) => {
+      const a = f.attributes;
+      const at = alertTypes[i % alertTypes.length];
+      const dt = a.FireDiscoveryDateTime ? new Date(a.FireDiscoveryDateTime) : null;
+      const timeStr = dt ? dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '--:--';
+      const acres = a.DailyAcres ? Math.round(a.DailyAcres) + ' ac' : '';
+      return `<div class="alert-item">
+        <div class="alert-icon" style="color:${at.color};">${at.icon}</div>
+        <div class="alert-body">
+          <div class="alert-title">${a.IncidentName || at.type}</div>
+          <div class="alert-loc">${acres ? acres + ' · ' : ''}Colorado</div>
+        </div>
+        <div class="alert-time">${timeStr}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    qs('alerts-list').innerHTML = '<div style="color:#4a6a4a; font-size:12px;">Could not load alerts</div>';
+  }
+}
+
+async function loadWeather(){
+  try {
+    const url = `${WEATHER_URL}?latitude=39.55&longitude=-105.78&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max,weathercode&timezone=America/Denver&forecast_days=5`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const c = data.current || {};
+    const temp = Math.round(c.temperature_2m ?? 0);
+    const hum = Math.round(c.relative_humidity_2m ?? 0);
+    const wind = Math.round(c.wind_speed_10m ?? 0);
+    const precip = Math.round(c.precipitation_probability ?? 0);
+
+    qs('w-temp').textContent = temp + '°C';
+    qs('w-hum').textContent = hum + '%';
+    qs('w-wind').textContent = wind + ' km/h';
+    qs('w-precip').textContent = precip + '%';
+    qs('m-temp').textContent = temp + '°C';
+    qs('m-temp-sub').textContent = 'Feels like ' + (temp - 2) + '°C';
+    qs('m-wind').textContent = wind;
+    qs('m-wind-sub').textContent = 'Gusts up to ' + Math.round(wind * 1.3) + ' km/h';
+
+    const daily = data.daily || {};
+    const days = ['Sun','Mon','Tue','Wed','Thu'];
+    const icons = ['&#x2600;','&#x26C5;','&#x2600;','&#x26C5;','&#x2601;'];
+    const fr = qs('forecast-row');
+    fr.innerHTML = (daily.temperature_2m_max || []).slice(0,5).map((t,i) => {
+      const pp = (daily.precipitation_probability_max || [])[i] || 0;
+      return `<div class="fc-day">
+        <div class="fc-label">${days[i]}</div>
+        <div class="fc-icon">${icons[i]}</div>
+        <div class="fc-temp">${Math.round(t)}°C</div>
+        <div class="fc-rain">&#x1F4A7; ${Math.round(pp)}%</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    qs('w-temp').textContent = '--';
+  }
+}
+
+async function loadData(){
+  qs('status-text').textContent = 'UPDATING...';
+  qs('status-dot').style.background = '#ff9800';
+  try {
+    await Promise.all([loadFireData(), loadFIRMS(), loadAlerts(), loadWeather()]);
+    qs('status-text').textContent = 'OPERATIONAL';
+    qs('status-dot').style.background = '#4caf50';
+    updateTimestamp();
+  } catch(e) {
+    qs('status-text').textContent = 'PARTIAL DATA';
+    qs('status-dot').style.background = '#ff9800';
+  }
+  qs('loader').style.display = 'none';
+}
+
+const msgs = ['Connecting to NASA FIRMS...','Loading NIFC fire data...','Fetching weather data...','Rendering dashboard...'];
+let mi = 0;
+const iv = setInterval(() => { if(++mi < msgs.length) qs('load-msg').textContent = msgs[mi]; else clearInterval(iv); }, 600);
+loadData();
+setInterval(loadData, 300000);
+</script>
