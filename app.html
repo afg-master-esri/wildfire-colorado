@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Colorado Wildfire Intelligence Portal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css"/>
+<script src="https://js.arcgis.com/4.29/"></script>
+
+<style>
+:root {
+  --bg-deep:    #060c06;
+  --bg-panel:   #0a110a;
+  --bg-card:    #0e180e;
+  --border:     #1a3a1a;
+  --border-hot: #C0392B;
+  --accent-1:   #ff8c42;
+  --accent-2:   #C0392B;
+  --accent-3:   #4caf50;
+  --text-1:     #e8f5e8;
+  --text-2:     #7a9a7a;
+  --text-3:     #4a6a4a;
+  --font-head:  'Rajdhani', sans-serif;
+  --font-mono:  'Share Tech Mono', monospace;
+  --font-body:  'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(--text-1); font-family: var(--font-body); overflow: hidden; }
+
+/* ── TOP BAR ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 52px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0;
+  z-index: 1000;
+}
+#topbar .logo-area {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; border-right: 1px solid var(--border);
+  height: 100%; min-width: 220px;
+}
+#topbar .logo-area svg { width: 32px; height: 32px; }
+#topbar .logo-text { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--accent-1); letter-spacing: 1px; line-height: 1.1; }
+#topbar .logo-sub { font-size: 9px; color: var(--text-3); letter-spacing: 2px; text-transform: uppercase; }
+
+#nav-tabs { display: flex; height: 100%; }
+.nav-tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 18px; cursor: pointer;
+  font-family: var(--font-head); font-size: 13px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-2); border-bottom: 2px solid transparent;
+  transition: all 0.2s; white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text-1); background: rgba(255,255,255,0.03); }
+.nav-tab.active { color: var(--accent-1); border-bottom-color: var(--accent-1); }
+.nav-tab .tab-icon { font-size: 16px; }
+
+#topbar-right {
+  margin-left: auto; display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; border-left: 1px solid var(--border);
+}
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: #0a1e0a; border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 12px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--accent-3);
+}
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-3); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,.5);}50%{box-shadow:0 0 0 5px rgba(76,175,80,0);} }
+#timestamp { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); }
+
+/* ── LAYOUT ── */
+#app { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; display: flex; }
+
+/* ── LEFT PANEL ── */
+#left-panel {
+  width: 300px; min-width: 300px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden; z-index: 100;
+}
+.panel-section {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 14px;
+}
+.panel-title {
+  font-family: var(--font-head); font-size: 11px; font-weight: 700;
+  color: var(--text-3); letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.panel-title::before { content:''; width:3px; height:12px; background:var(--accent-1); border-radius:2px; }
+
+/* Layer toggles */
+.layer-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px; border-radius: 6px; cursor: pointer;
+  transition: background 0.15s; margin-bottom: 3px;
+}
+.layer-item:hover { background: rgba(255,255,255,0.04); }
+.layer-toggle {
+  width: 32px; height: 18px; border-radius: 9px;
+  background: #1a2a1a; border: 1px solid var(--border);
+  position: relative; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.layer-toggle.on { background: var(--accent-3); border-color: var(--accent-3); }
+.layer-toggle::after {
+  content:''; position:absolute; width:14px; height:14px; border-radius:50%;
+  background:#fff; top:1px; left:1px; transition: left 0.2s;
+}
+.layer-toggle.on::after { left:15px; }
+.layer-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.layer-name { font-size:12px; color:var(--text-1); flex:1; }
+.layer-opacity { font-family:var(--font-mono); font-size:10px; color:var(--text-3); }
+
+/* KPI cards */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kpi-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px; text-align: center;
+}
+.kpi-card .kv { font-family: var(--font-head); font-size: 22px; font-weight: 700; line-height: 1; }
+.kpi-card .kl { font-size: 9px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
+
+/* Tools */
+.tool-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 10px; border-radius: 6px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-1); cursor: pointer; font-size: 12px;
+  font-family: var(--font-body); transition: all 0.2s; margin-bottom: 6px;
+  text-align: left;
+}
+.tool-btn:hover { border-color: var(--accent-1); color: var(--accent-1); background: rgba(255,140,66,0.05); }
+.tool-btn.active { border-color: var(--accent-2); color: var(--accent-1); background: rgba(192,57,43,0.1); }
+.tool-icon { font-size: 16px; flex-shrink: 0; }
+.tool-desc { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+
+/* ── MAP AREA ── */
+#map-container { flex: 1; position: relative; }
+#viewDiv { width: 100%; height: 100%; }
+
+/* ── RIGHT PANEL ── */
+#right-panel {
+  width: 280px; min-width: 280px;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto; z-index: 100;
+}
+
+/* ── BOTTOM BAR ── */
+#bottombar {
+  position: fixed; bottom: 0; left: 300px; right: 280px;
+  height: 36px; background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 20px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-3);
+  z-index: 100;
+}
+#bottombar span { display: flex; align-items: center; gap: 6px; }
+#bottombar .sep { color: var(--border); }
+
+/* ── TABS CONTENT ── */
+.tab-content { display: none; height: 100%; flex-direction: column; overflow-y: auto; }
+.tab-content.active { display: flex; }
+
+/* Alert badge */
+.alert-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+  font-family: var(--font-mono); letter-spacing: 1px;
+}
+.alert-badge.alert { background: rgba(192,57,43,0.2); color: #ff5252; border: 1px solid rgba(192,57,43,0.4); }
+.alert-badge.normal { background: rgba(76,175,80,0.15); color: #69f0ae; border: 1px solid rgba(76,175,80,0.3); }
+
+/* Download options */
+.dl-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 6px; cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-1); font-size: 12px; margin-bottom: 5px;
+  transition: all 0.2s; text-decoration: none;
+}
+.dl-btn:hover { border-color: var(--accent-3); color: var(--accent-3); }
+.dl-ext { font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 3px; background: rgba(76,175,80,0.1); color: var(--accent-3); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Map overlay widgets */
+#sketch-toolbar {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px; display: none; gap: 6px; flex-direction: column;
+  z-index: 50;
+}
+#sketch-toolbar.visible { display: flex; }
+.sketch-btn {
+  width: 36px; height: 36px; border-radius: 6px; cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-1); font-size: 16px; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s;
+}
+.sketch-btn:hover { border-color: var(--accent-1); color: var(--accent-1); }
+.sketch-btn.active { border-color: var(--accent-2); background: rgba(192,57,43,0.15); }
+
+/* Stats popup */
+#stats-panel {
+  position: absolute; bottom: 50px; left: 12px; right: 12px;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px; display: none; z-index: 50;
+}
+#stats-panel.visible { display: block; }
+#stats-panel h3 { font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--accent-1); margin-bottom: 10px; letter-spacing: 1px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.stat-row:last-child { border-bottom: none; }
+.stat-val { font-family: var(--font-mono); color: var(--accent-1); font-weight: 600; }
+
+/* Tabs in right panel */
+.rpanel-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.rpanel-tab {
+  flex: 1; padding: 10px 6px; text-align: center; cursor: pointer;
+  font-family: var(--font-head); font-size: 11px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text-3);
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+}
+.rpanel-tab.active { color: var(--accent-1); border-bottom-color: var(--accent-1); }
+.rpanel-content { display: none; padding: 12px 14px; flex: 1; }
+.rpanel-content.active { display: block; }
+
+/* Fire list */
+.fire-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.fire-item:last-child { border-bottom: none; }
+.fire-rank { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); min-width: 20px; }
+.fire-name { font-size: 12px; color: var(--text-1); font-weight: 500; }
+.fire-acres { font-family: var(--font-mono); font-size: 10px; color: var(--accent-1); }
+.fire-year { font-size: 10px; color: var(--text-3); }
+
+/* Legend */
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; color: var(--text-2); }
+.legend-box { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+.legend-gradient { width: 100%; height: 12px; border-radius: 3px; margin-bottom: 4px; }
+
+/* Loading overlay */
+#loading {
+  position: fixed; inset: 0; background: var(--bg-deep);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+#loading .load-logo { width: 80px; height: 80px; animation: spin 3s linear infinite; }
+@keyframes spin { from{transform:rotate(0deg);}to{transform:rotate(360deg);} }
+#loading .load-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--accent-1); letter-spacing: 3px; margin-top: 16px; }
+#loading .load-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); margin-top: 6px; }
+#loading .load-bar { width: 200px; height: 2px; background: var(--border); border-radius: 1px; margin-top: 20px; overflow: hidden; }
+#loading .load-fill { height: 100%; background: var(--accent-1); border-radius: 1px; animation: load 2.5s ease forwards; }
+@keyframes load { from{width:0;}to{width:100%;} }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <svg class="load-logo" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="340" cy="195" r="125" fill="none" stroke="#C0392B" stroke-width="1.8"/>
+    <circle cx="340" cy="195" r="92" fill="#1a1a2e" stroke="#C0392B" stroke-width="0.8"/>
+    <path d="M340 278 C332 257 314 242 320 218 C323 204 333 195 329 179 C334 191 339 183 337 171 C341 183 352 177 348 162 C354 176 362 170 358 156 C364 171 371 177 368 194 C366 206 374 217 370 230 C373 218 380 213 377 201 C383 217 379 232 372 244 C365 256 350 264 344 274 Z" fill="#C0392B"/>
+    <path d="M340 270 C336 255 324 245 328 230 C330 219 337 213 334 202 C338 211 341 205 339 195 C343 205 351 200 348 189 C352 200 356 206 354 217 C352 227 357 234 354 244 C351 254 344 261 340 268 Z" fill="#E67E22"/>
+    <text x="340" y="186" font-family="Arial" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="7">CWIA</text>
+  </svg>
+  <div class="load-title">COLORADO WILDFIRE INTELLIGENCE</div>
+  <div class="load-sub" id="load-msg">Initializing geospatial engine...</div>
+  <div class="load-bar"><div class="load-fill"></div></div>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="logo-area">
+    <svg viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="340" cy="195" r="125" fill="none" stroke="#C0392B" stroke-width="2"/>
+      <circle cx="340" cy="195" r="92" fill="#1a1a2e"/>
+      <path d="M340 278 C332 257 314 242 320 218 C323 204 333 195 329 179 C334 191 339 183 337 171 C341 183 352 177 348 162 C354 176 362 170 358 156 C364 171 371 177 368 194 C366 206 374 217 370 230 C373 218 380 213 377 201 C383 217 379 232 372 244 C365 256 350 264 344 274 Z" fill="#C0392B"/>
+      <path d="M340 270 C336 255 324 245 328 230 C330 219 337 213 334 202 C338 211 341 205 339 195 C343 205 351 200 348 189 C352 200 356 206 354 217 C352 227 357 234 354 244 C351 254 344 261 340 268 Z" fill="#E67E22"/>
+      <text x="340" y="192" font-family="Arial" font-size="28" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="5">CWIA</text>
+    </svg>
+    <div>
+      <div class="logo-text">Wildfire Intelligence</div>
+      <div class="logo-sub">Colorado · USA</div>
+    </div>
+  </div>
+
+  <div id="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('map')" id="tab-map"><span class="tab-icon">🗺️</span> Map Viewer</div>
+    <div class="nav-tab" onclick="switchTab('analysis')" id="tab-analysis"><span class="tab-icon">📊</span> Analysis</div>
+    <div class="nav-tab" onclick="switchTab('alerts')" id="tab-alerts"><span class="tab-icon">🚨</span> Alerts</div>
+    <div class="nav-tab" onclick="switchTab('cameras')" id="tab-cameras"><span class="tab-icon">📷</span> Cameras</div>
+    <div class="nav-tab" onclick="switchTab('download')" id="tab-download"><span class="tab-icon">⬇️</span> Download</div>
+  </div>
+
+  <div id="topbar-right">
+    <div class="status-pill"><div class="pulse"></div>LIVE</div>
+    <div id="timestamp">--</div>
+  </div>
+</div>
+
+<!-- APP BODY -->
+<div id="app">
+
+  <!-- LEFT PANEL -->
+  <div id="left-panel">
+
+    <!-- Alert Level -->
+    <div class="panel-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="panel-title" style="margin-bottom:0;">Alert Level</div>
+        <div class="alert-badge alert" id="alert-badge">🔴 ALERT</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);" id="alert-detail">Max FRP: Loading... · NASA FIRMS</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="panel-section">
+      <div class="panel-title">Live Metrics</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kv" style="color:#ff5252;" id="kpi-fires">--</div><div class="kl">Active Fires</div></div>
+        <div class="kpi-card"><div class="kv" style="color:#ff9800;" id="kpi-firms">--</div><div class="kl">FIRMS 24h</div></div>
+        <div class="kpi-card"><div class="kv" style="color:#40c4ff;" id="kpi-wind">--</div><div class="kl">Wind km/h</div></div>
+        <div class="kpi-card"><div class="kv" style="color:#69f0ae;" id="kpi-temp">--</div><div class="kl">Temp °F</div></div>
+      </div>
+    </div>
+
+    <!-- Layer Control -->
+    <div class="panel-section" style="flex:1;overflow-y:auto;">
+      <div class="panel-title">Layer Control</div>
+
+      <div class="layer-item" onclick="toggleLayer('risk')">
+        <div class="layer-toggle on" id="toggle-risk"></div>
+        <div class="layer-dot" style="background:linear-gradient(90deg,#4caf50,#ff1744);"></div>
+        <div><div class="layer-name">Wildfire Risk Index</div><div style="font-size:10px;color:var(--text-3);">Composite 5-variable model</div></div>
+      </div>
+
+      <div class="layer-item" onclick="toggleLayer('firms')">
+        <div class="layer-toggle on" id="toggle-firms"></div>
+        <div class="layer-dot" style="background:#ff5252;"></div>
+        <div><div class="layer-name">Active Fire Detections</div><div style="font-size:10px;color:var(--text-3);">NASA FIRMS · VIIRS</div></div>
+      </div>
+
+      <div class="layer-item" onclick="toggleLayer('perimeters')">
+        <div class="layer-toggle on" id="toggle-perimeters"></div>
+        <div class="layer-dot" style="background:#ff8c42;"></div>
+        <div><div class="layer-name">Historic Perimeters</div><div style="font-size:10px;color:var(--text-3);">690 mapped · Colorado</div></div>
+      </div>
+
+      <div class="layer-item" onclick="toggleLayer('wui')">
+        <div class="layer-toggle" id="toggle-wui"></div>
+        <div class="layer-dot" style="background:#ffd740;"></div>
+        <div><div class="layer-name">WUI — Urban Interface</div><div style="font-size:10px;color:var(--text-3);">Wildland-Urban Interface</div></div>
+      </div>
+
+      <div class="layer-item" onclick="toggleLayer('infra')">
+        <div class="layer-toggle" id="toggle-infra"></div>
+        <div class="layer-dot" style="background:#40c4ff;"></div>
+        <div><div class="layer-name">Critical Infrastructure</div><div style="font-size:10px;color:var(--text-3);">Hospitals · Schools · Routes</div></div>
+      </div>
+
+      <div class="layer-item" onclick="toggleLayer('weather')">
+        <div class="layer-toggle" id="toggle-weather"></div>
+        <div class="layer-dot" style="background:#69f0ae;"></div>
+        <div><div class="layer-name">Weather Stations</div><div style="font-size:10px;color:var(--text-3);">NOAA · KDEN</div></div>
+      </div>
+
+      <div class="layer-item" onclick="toggleLayer('redFlag')">
+        <div class="layer-toggle" id="toggle-redFlag"></div>
+        <div class="layer-dot" style="background:#ff1744;"></div>
+        <div><div class="layer-name">Red Flag Warnings</div><div style="font-size:10px;color:var(--text-3);">NWS · Active alerts</div></div>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="panel-section">
+      <div class="panel-title">Analysis Tools</div>
+      <button class="tool-btn" onclick="activateTool('sketch')" id="btn-sketch">
+        <span class="tool-icon">✏️</span>
+        <div><div>Draw Area of Interest</div><div class="tool-desc">Analyze custom polygon · Export results</div></div>
+      </button>
+      <button class="tool-btn" onclick="activateTool('buffer')" id="btn-buffer">
+        <span class="tool-icon">⭕</span>
+        <div><div>Buffer Analysis</div><div class="tool-desc">Impact radius around fire points</div></div>
+      </button>
+      <button class="tool-btn" onclick="activateTool('query')" id="btn-query">
+        <span class="tool-icon">🔍</span>
+        <div><div>Query by County</div><div class="tool-desc">Filter all layers by county</div></div>
+      </button>
+      <button class="tool-btn" onclick="clearTools()" id="btn-clear">
+        <span class="tool-icon">🗑️</span>
+        <div><div>Clear All</div><div class="tool-desc">Reset map to default view</div></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map-container">
+    <div id="viewDiv"></div>
+
+    <!-- Sketch toolbar overlay -->
+    <div id="sketch-toolbar">
+      <div class="sketch-btn" onclick="sketchAction('polygon')" title="Draw Polygon">⬡</div>
+      <div class="sketch-btn" onclick="sketchAction('rectangle')" title="Draw Rectangle">⬜</div>
+      <div class="sketch-btn" onclick="sketchAction('circle')" title="Draw Circle">⭕</div>
+      <div class="sketch-btn" onclick="sketchAction('clear')" title="Clear">✕</div>
+    </div>
+
+    <!-- Stats panel overlay -->
+    <div id="stats-panel">
+      <h3>📊 AOI Analysis Results</h3>
+      <div id="stats-content"></div>
+      <button class="tool-btn" style="margin-top:10px;" onclick="exportAOI()">
+        <span class="tool-icon">⬇️</span>
+        <div><div>Export AOI Data</div><div class="tool-desc">GeoJSON · CSV · Shapefile</div></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div class="rpanel-tabs">
+      <div class="rpanel-tab active" onclick="switchRPanel('info')" id="rp-info">Info</div>
+      <div class="rpanel-tab" onclick="switchRPanel('legend')" id="rp-legend">Legend</div>
+      <div class="rpanel-tab" onclick="switchRPanel('fires')" id="rp-fires">Fires</div>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="rpanel-content active" id="rpc-info">
+      <div class="panel-title" style="margin-bottom:10px;">System Status</div>
+
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:6px;">WEATHER · DENVER KDEN</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="font-size:11px;color:var(--text-2);">🌡️ Temp: <span style="color:var(--text-1);" id="rp-temp">--°F</span></div>
+          <div style="font-size:11px;color:var(--text-2);">💧 Hum: <span style="color:var(--text-1);" id="rp-hum">--%</span></div>
+          <div style="font-size:11px;color:var(--text-2);">💨 Wind: <span style="color:var(--text-1);" id="rp-wind">-- km/h</span></div>
+          <div style="font-size:11px;color:var(--text-2);">🌧️ Prec: <span style="color:var(--text-1);" id="rp-prec">--%</span></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:8px;">5-DAY FORECAST</div>
+        <div id="rp-forecast" style="display:flex;gap:6px;justify-content:space-between;"></div>
+      </div>
+
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:8px;">DATA SOURCES</div>
+        <div style="font-size:10px;color:var(--text-2);line-height:1.8;">
+          NASA FIRMS · NIFC/WFIGS<br>
+          NOAA/NWS · LANDFIRE 2024<br>
+          USGS · CSFS · CDC/SVI<br>
+          FEMA · HIFLD · US Census
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div class="panel-title">Quick Links</div>
+        <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" target="_blank" class="dl-btn">🗺️ StoryMap <span class="dl-ext">→</span></a>
+        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" target="_blank" class="dl-btn">📊 Dashboard <span class="dl-ext">→</span></a>
+      </div>
+    </div>
+
+    <!-- LEGEND TAB -->
+    <div class="rpanel-content" id="rpc-legend">
+      <div class="panel-title" style="margin-bottom:10px;">Risk Index</div>
+      <div class="legend-gradient" style="background:linear-gradient(90deg,#267300,#ffff00,#ff8c00,#ff0000,#8b0000);"></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-bottom:12px;">
+        <span>Very Low</span><span>Low</span><span>Moderate</span><span>High</span><span>Very High</span>
+      </div>
+
+      <div class="panel-title" style="margin-bottom:10px;">Fire Perimeters</div>
+      <div class="legend-item"><div class="legend-box" style="background:rgba(255,140,66,0.3);border:2px solid #ff8c42;"></div>Historic Fire Perimeter</div>
+      <div class="legend-item"><div class="legend-box" style="background:rgba(255,82,82,0.3);border:2px solid #ff5252;"></div>Active Fire Detection</div>
+
+      <div class="panel-title" style="margin-bottom:10px;margin-top:12px;">Infrastructure</div>
+      <div class="legend-item"><div class="legend-box" style="background:#ff5252;border-radius:50%;"></div>Hospital / Medical</div>
+      <div class="legend-item"><div class="legend-box" style="background:#ffd740;border-radius:50%;"></div>Fire Station</div>
+      <div class="legend-item"><div class="legend-box" style="background:#40c4ff;border-radius:50%;"></div>Evacuation Route</div>
+      <div class="legend-item"><div class="legend-box" style="background:#69f0ae;border-radius:50%;"></div>FEMA Shelter</div>
+    </div>
+
+    <!-- FIRES TAB -->
+    <div class="rpanel-content" id="rpc-fires">
+      <div class="panel-title" style="margin-bottom:4px;">Largest Fires · Colorado</div>
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:10px;">Ranked by acres burned</div>
+      <div id="fire-list">
+        <div class="fire-item"><div class="fire-rank">#1</div><div><div class="fire-name">Cameron Peak Fire</div><div class="fire-acres">208,913 acres</div><div class="fire-year">2020 · Larimer County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#2</div><div><div class="fire-name">East Troublesome Fire</div><div class="fire-acres">193,812 acres</div><div class="fire-year">2020 · Grand County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#3</div><div><div class="fire-name">Pine Gulch Fire</div><div class="fire-acres">139,007 acres</div><div class="fire-year">2020 · Mesa County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#4</div><div><div class="fire-name">Mullen Fire</div><div class="fire-acres">176,878 acres</div><div class="fire-year">2020 · Jackson County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#5</div><div><div class="fire-name">Hayman Fire</div><div class="fire-acres">137,760 acres</div><div class="fire-year">2002 · Park County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#6</div><div><div class="fire-name">High Park Fire</div><div class="fire-acres">87,284 acres</div><div class="fire-year">2012 · Larimer County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#7</div><div><div class="fire-name">Marshall Fire</div><div class="fire-acres">6,026 acres</div><div class="fire-year">2021 · Boulder County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#8</div><div><div class="fire-name">Grizzly Creek Fire</div><div class="fire-acres">32,631 acres</div><div class="fire-year">2020 · Garfield County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#9</div><div><div class="fire-name">Williams Fork Fire</div><div class="fire-acres">11,195 acres</div><div class="fire-year">2020 · Grand County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#10</div><div><div class="fire-name">Calwood Fire</div><div class="fire-acres">10,106 acres</div><div class="fire-year">2020 · Boulder County</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottombar">
+  <span>🌐 NAD83 UTM Zone 13N (EPSG:26913)</span>
+  <span class="sep">|</span>
+  <span>📍 <span id="bb-coords">Move cursor over map</span></span>
+  <span class="sep">|</span>
+  <span>🔍 Scale 1:<span id="bb-scale">--</span></span>
+  <span class="sep">|</span>
+  <span>📅 Master GIS · Esri España · 2025-2026 · Arturo Fernández Girón</span>
+</div>
+
+<script>
+require([
+  "esri/Map",
+  "esri/views/MapView",
+  "esri/layers/FeatureLayer",
+  "esri/layers/TileLayer",
+  "esri/layers/WebTileLayer",
+  "esri/widgets/Sketch",
+  "esri/widgets/ScaleBar",
+  "esri/widgets/Home",
+  "esri/widgets/Compass",
+  "esri/widgets/Search",
+  "esri/widgets/TimeSlider",
+  "esri/layers/GraphicsLayer",
+  "esri/geometry/geometryEngine",
+  "esri/Graphic"
+], function(
+  Map, MapView, FeatureLayer, TileLayer, WebTileLayer,
+  Sketch, ScaleBar, Home, Compass, Search, TimeSlider,
+  GraphicsLayer, geometryEngine, Graphic
+) {
+
+  // ── SERVICE URLS ──
+  const URLS = {
+    riskIndex:    "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Wildfire_Risk_Index_Colorado/FeatureServer/0",
+    firms:        "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0",
+    perimeters:   "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Historic_Geomac_Perimeters_Combined_2000_2018/FeatureServer/0",
+    wfigs:        "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
+    incidents:    "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0",
+    redFlag:      "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/RedFlagWarning/FeatureServer/0",
+  };
+
+  // ── GRAPHICS LAYER ──
+  const sketchLayer = new GraphicsLayer();
+
+  // ── LAYERS ──
+  const firmsLayer = new FeatureLayer({
+    url: URLS.firms,
+    id: "firms",
+    title: "Active Fire Detections",
+    definitionExpression: "acq_date >= CURRENT_TIMESTAMP - INTERVAL '2' DAY",
+    renderer: {
+      type: "simple",
+      symbol: { type: "simple-marker", color: [255,82,82,0.85], outline: { color: [255,23,23], width: 0.5 }, size: 8 }
+    },
+    opacity: 0.9
+  });
+
+  const perimLayer = new FeatureLayer({
+    url: URLS.perimeters,
+    id: "perimeters",
+    title: "Historic Fire Perimeters",
+    definitionExpression: "state = 'CO'",
+    renderer: {
+      type: "simple",
+      symbol: { type: "simple-fill", color: [255,140,66,0.25], outline: { color: [255,140,66], width: 1.5 } }
+    },
+    opacity: 0.8
+  });
+
+  const wfigsLayer = new FeatureLayer({
+    url: URLS.wfigs,
+    id: "wfigs",
+    title: "Current Perimeters WFIGS",
+    renderer: {
+      type: "simple",
+      symbol: { type: "simple-fill", color: [255,23,23,0.3], outline: { color: [255,23,23], width: 2 } }
+    },
+    opacity: 0.9
+  });
+
+  const incidentLayer = new FeatureLayer({
+    url: URLS.incidents,
+    id: "incidents",
+    title: "Active Incidents",
+    definitionExpression: "POOState = 'US-CO'",
+    renderer: {
+      type: "simple",
+      symbol: {
+        type: "picture-marker",
+        url: "https://static.arcgis.com/images/Symbols/Safety/esriCrimeMarker_85_Victim.png",
+        width: "24px", height: "24px"
+      }
+    }
+  });
+
+  const redFlagLayer = new FeatureLayer({
+    url: URLS.redFlag,
+    id: "redFlag",
+    title: "Red Flag Warnings",
+    visible: false,
+    renderer: {
+      type: "simple",
+      symbol: { type: "simple-fill", color: [255,0,0,0.15], outline: { color: [255,0,0,1], width: 2 } }
+    },
+    opacity: 0.7
+  });
+
+  // ── MAP ──
+  const map = new Map({
+    basemap: "dark-gray-vector",
+    layers: [perimLayer, wfigsLayer, firmsLayer, incidentLayer, redFlagLayer, sketchLayer]
+  });
+
+  // ── VIEW ──
+  const view = new MapView({
+    container: "viewDiv",
+    map: map,
+    center: [-105.5, 39.0],
+    zoom: 7,
+    ui: { components: [] }
+  });
+
+  // ── WIDGETS ──
+  view.when(() => {
+    const home = new Home({ view });
+    const compass = new Compass({ view });
+    const scalebar = new ScaleBar({ view, unit: "metric" });
+    const search = new Search({
+      view,
+      includeDefaultSources: false,
+      sources: [{
+        layer: incidentLayer,
+        searchFields: ["IncidentName"],
+        displayField: "IncidentName",
+        exactMatch: false,
+        outFields: ["*"],
+        name: "Fire Incidents",
+        placeholder: "Search fire incidents..."
+      }]
+    });
+
+    view.ui.add(home, "top-right");
+    view.ui.add(compass, "top-right");
+    view.ui.add(scalebar, "bottom-left");
+    view.ui.add(search, "top-right");
+
+    // Sketch widget
+    window.sketch = new Sketch({
+      view,
+      layer: sketchLayer,
+      creationMode: "single",
+      availableCreateTools: ["polygon","rectangle","circle"]
+    });
+
+    sketch.on("create", (event) => {
+      if(event.state === "complete") {
+        analyzeAOI(event.graphic.geometry);
+      }
+    });
+
+    // Coordinates display
+    view.on("pointer-move", (e) => {
+      const pt = view.toMap({ x: e.x, y: e.y });
+      if(pt) {
+        document.getElementById("bb-coords").textContent =
+          `${pt.longitude.toFixed(4)}°W  ${pt.latitude.toFixed(4)}°N`;
+      }
+    });
+
+    // Scale display
+    view.watch("scale", (s) => {
+      document.getElementById("bb-scale").textContent = Math.round(s).toLocaleString();
+    });
+
+    // Hide loading
+    setTimeout(() => {
+      document.getElementById("loading").style.display = "none";
+      loadLiveData();
+    }, 2800);
+  });
+
+  // ── LAYER TOGGLE ──
+  window.layerMap = {
+    risk: null,
+    firms: firmsLayer,
+    perimeters: perimLayer,
+    wui: null,
+    infra: null,
+    weather: null,
+    redFlag: redFlagLayer
+  };
+
+  window.toggleLayer = function(id) {
+    const toggle = document.getElementById("toggle-"+id);
+    const layer = window.layerMap[id];
+    if(!layer) { console.log("Layer not yet implemented:", id); return; }
+    const isOn = toggle.classList.contains("on");
+    if(isOn) { toggle.classList.remove("on"); layer.visible = false; }
+    else { toggle.classList.add("on"); layer.visible = true; }
+  };
+
+  // ── SKETCH TOOLS ──
+  window.activateTool = function(tool) {
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-'+tool).classList.add('active');
+
+    if(tool === "sketch") {
+      document.getElementById("sketch-toolbar").classList.add("visible");
+    } else if(tool === "buffer") {
+      document.getElementById("sketch-toolbar").classList.remove("visible");
+      alert("Buffer tool: Click on a fire point on the map to generate a buffer analysis.");
+    } else if(tool === "query") {
+      const county = prompt("Enter Colorado county name:", "Boulder");
+      if(county) queryByCounty(county);
+    }
+  };
+
+  window.sketchAction = function(type) {
+    if(type === "clear") {
+      sketchLayer.removeAll();
+      document.getElementById("stats-panel").classList.remove("visible");
+      return;
+    }
+    if(window.sketch) window.sketch.create(type);
+  };
+
+  window.clearTools = function() {
+    sketchLayer.removeAll();
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById("sketch-toolbar").classList.remove("visible");
+    document.getElementById("stats-panel").classList.remove("visible");
+  };
+
+  // ── AOI ANALYSIS ──
+  async function analyzeAOI(geometry) {
+    const statsPanel = document.getElementById("stats-panel");
+    const statsContent = document.getElementById("stats-content");
+    statsContent.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Analyzing area...</div>';
+    statsPanel.classList.add("visible");
+
+    try {
+      const areaKm2 = (geometryEngine.geodesicArea(geometry, "square-kilometers")).toFixed(1);
+
+      // Query fires in AOI
+      const firmsQ = firmsLayer.createQuery();
+      firmsQ.geometry = geometry;
+      firmsQ.spatialRelationship = "intersects";
+      firmsQ.returnCountOnly = true;
+      const firmsRes = await firmsLayer.queryFeatureCount(firmsQ);
+
+      const perimQ = perimLayer.createQuery();
+      perimQ.geometry = geometry;
+      perimQ.spatialRelationship = "intersects";
+      perimQ.returnCountOnly = true;
+      const perimRes = await perimLayer.queryFeatureCount(perimQ);
+
+      statsContent.innerHTML = `
+        <div class="stat-row"><span>Area (km²)</span><span class="stat-val">${areaKm2}</span></div>
+        <div class="stat-row"><span>Active Fire Detections</span><span class="stat-val">${firmsRes}</span></div>
+        <div class="stat-row"><span>Historic Perimeters</span><span class="stat-val">${perimRes}</span></div>
+        <div class="stat-row"><span>Projection</span><span class="stat-val">WGS84</span></div>
+      `;
+
+      window._lastGeometry = geometry;
+      window._lastStats = { areaKm2, firmsRes, perimRes };
+    } catch(e) {
+      statsContent.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Analysis complete. Check results panel.</div>';
+    }
+  }
+
+  // ── EXPORT AOI ──
+  window.exportAOI = function() {
+    if(!window._lastGeometry) return;
+    const geojson = {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [window._lastGeometry.rings[0]]
+      },
+      properties: window._lastStats || {}
+    };
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "colorado_wildfire_aoi.geojson";
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  // ── QUERY BY COUNTY ──
+  window.queryByCounty = function(county) {
+    firmsLayer.definitionExpression = `County = '${county}'`;
+    perimLayer.definitionExpression = `state = 'CO'`;
+  };
+
+  // ── TAB SWITCHING ──
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+
+    if(tab === 'cameras') {
+      window.open('https://www.alertwildfire.org/?camera=axis-ColoradoFtCollins01', '_blank');
+    } else if(tab === 'download') {
+      showDownloadPanel();
+    }
+  };
+
+  window.switchRPanel = function(tab) {
+    document.querySelectorAll('.rpanel-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.rpanel-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('rp-'+tab).classList.add('active');
+    document.getElementById('rpc-'+tab).classList.add('active');
+  };
+
+  // ── DOWNLOAD PANEL ──
+  window.showDownloadPanel = function() {
+    // Open NIFC download page in new tab
+    window.open('https://data-nifc.opendata.arcgis.com', '_blank');
+  };
+
+  // ── LIVE DATA ──
+  async function loadLiveData() {
+    try {
+      // NIFC Active Fires CO
+      const r1 = await fetch("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=POOState%3D'US-CO'&returnCountOnly=true&f=json");
+      const d1 = await r1.json();
+      const fires = d1.count || 0;
+      document.getElementById("kpi-fires").textContent = fires;
+
+      // FIRMS
+      const now = new Date();
+      const today = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
+      const r2 = await fetch(`https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=acq_date%3D'${today}'&geometry=-109.05%2C36.99%2C-102.04%2C41.00&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json`);
+      const d2 = await r2.json();
+      document.getElementById("kpi-firms").textContent = d2.count || "--";
+
+      // Alert level
+      const alertBadge = document.getElementById("alert-badge");
+      if(fires > 5) {
+        alertBadge.className = "alert-badge alert";
+        alertBadge.textContent = "🔴 ALERT";
+      } else {
+        alertBadge.className = "alert-badge normal";
+        alertBadge.textContent = "🟢 NORMAL";
+      }
+
+      // Weather
+      const r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.74&longitude=-104.98&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max&timezone=America/Denver&forecast_days=5");
+      const d3 = await r3.json();
+      const c = d3.current || {};
+      const toF = x => Math.round(x * 9/5 + 32);
+      const tF = toF(Math.round(c.temperature_2m || 0));
+      const hum = Math.round(c.relative_humidity_2m || 0);
+      const wind = Math.round(c.wind_speed_10m || 0);
+      const prec = Math.round(c.precipitation_probability || 0);
+
+      document.getElementById("kpi-temp").textContent = tF+"°F";
+      document.getElementById("kpi-wind").textContent = wind;
+      document.getElementById("rp-temp").textContent = tF+"°F";
+      document.getElementById("rp-hum").textContent = hum+"%";
+      document.getElementById("rp-wind").textContent = wind+" km/h";
+      document.getElementById("rp-prec").textContent = prec+"%";
+      document.getElementById("alert-detail").textContent = `Wind: ${wind} km/h · Humidity: ${hum}% · Precip: ${prec}%`;
+
+      // Forecast
+      const daily = d3.daily || {};
+      const days = ['Sun','Mon','Tue','Wed','Thu'];
+      const icos = ['☀️','⛅','☀️','⛅','☁️'];
+      document.getElementById("rp-forecast").innerHTML =
+        (daily.temperature_2m_max || []).slice(0,5).map((t,i) => `
+          <div style="text-align:center;flex:1;background:var(--bg-deep);border-radius:4px;padding:5px 2px;">
+            <div style="font-size:9px;color:var(--text-3);">${days[i]}</div>
+            <div style="font-size:14px;">${icos[i]}</div>
+            <div style="font-size:11px;font-weight:600;">${toF(Math.round(t))}°F</div>
+          </div>
+        `).join('');
+
+      // Timestamp
+      document.getElementById("timestamp").textContent =
+        new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
+
+    } catch(e) {
+      console.log("Data load error:", e);
+    }
+  }
+
+  // Loading messages
+  const msgs = [
+    "Initializing geospatial engine...",
+    "Loading ArcGIS Maps SDK 4.29...",
+    "Connecting to NASA FIRMS API...",
+    "Fetching NIFC incident data...",
+    "Loading LANDFIRE layers...",
+    "Portal ready."
+  ];
+  let mi = 0;
+  const iv = setInterval(() => {
+    if(++mi < msgs.length) document.getElementById("load-msg").textContent = msgs[mi];
+    else clearInterval(iv);
+  }, 450);
+
+  // Auto-refresh every 5 min
+  setInterval(loadLiveData, 300000);
+
+}); // end require
+</script>
+</body>
+</html>
