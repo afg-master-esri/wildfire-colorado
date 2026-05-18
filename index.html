@@ -8,22 +8,16 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5e8;}
 .wrap{background:linear-gradient(180deg,#0a100a 0%,#0d1a0d 100%);min-height:100vh;padding:18px 20px 14px;}
-
-/* Animated fire bg */
 .fire-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
 .fire-particle{position:absolute;bottom:0;border-radius:50% 50% 20% 20%;animation:rise linear infinite;opacity:0;}
 @keyframes rise{0%{transform:translateY(0) scaleX(1);opacity:0.6;}100%{transform:translateY(-100vh) scaleX(0.3);opacity:0;}}
-
 .content{position:relative;z-index:1;}
-
-/* HEADER */
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #1e3a1e;}
 .logo-wrap{display:flex;align-items:center;gap:16px;}
 .logo-svg{width:72px;height:72px;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(196,57,43,0.4));}
 .title-block h1{font-size:20px;font-weight:800;color:#ff8c42;letter-spacing:2px;text-transform:uppercase;}
 .title-block .sub{font-size:11px;color:#6a9a6a;margin-top:3px;letter-spacing:0.5px;}
 .title-block .edition{font-size:10px;color:#4a6a4a;margin-top:1px;}
-
 .header-right{text-align:right;}
 .status-row{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:4px;}
 .status-pill{display:flex;align-items:center;gap:5px;background:#0a1e0a;border:1px solid #2d5a2d;border-radius:20px;padding:5px 12px;}
@@ -33,10 +27,8 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 .timestamp{font-size:10px;color:#4a6a4a;}
 .refresh-btn{background:#0a1e0a;border:1px solid #2d4a2d;border-radius:6px;color:#7ec850;font-size:11px;padding:4px 10px;cursor:pointer;transition:all 0.2s;}
 .refresh-btn:hover{background:#1a3a1a;border-color:#4caf50;}
-
-/* KPI STRIP */
 .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
-.kpi{background:#0d1e0d;border:1px solid #1a3a1a;border-radius:10px;padding:12px 10px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden;}
+.kpi{background:#0d1e0d;border:1px solid #1a3a1a;border-radius:10px;padding:12px 10px;text-align:center;position:relative;overflow:hidden;}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
 .kpi.red::before{background:linear-gradient(90deg,transparent,#ff1744,transparent);}
 .kpi.orange::before{background:linear-gradient(90deg,transparent,#ff9800,transparent);}
@@ -47,30 +39,23 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 .kpi-label{font-size:9px;color:#4a6a4a;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
 .kpi-val{font-size:28px;font-weight:800;line-height:1;}
 .kpi-sub{font-size:9px;margin-top:3px;}
-.c-red{color:#ff5252;} .c-orange{color:#ff9800;} .c-yellow{color:#ffd740;} .c-blue{color:#40c4ff;} .c-green{color:#69f0ae;}
-.s-red{color:#ff7070;} .s-green{color:#69f0ae;} .s-gray{color:#4a6a4a;}
-
-/* MAIN GRID */
+.c-red{color:#ff5252;}.c-orange{color:#ff9800;}.c-yellow{color:#ffd740;}.c-blue{color:#40c4ff;}.c-green{color:#69f0ae;}
+.s-red{color:#ff7070;}.s-green{color:#69f0ae;}.s-gray{color:#4a6a4a;}
 .main-grid{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:10px;margin-bottom:12px;}
 .card{background:#0d1e0d;border:1px solid #1a3a1a;border-radius:10px;padding:14px;}
 .card-hdr{font-size:10px;font-weight:700;color:#4a7a4a;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .card-hdr-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;}
-
-/* GAUGE */
 .gauge-area{display:flex;align-items:center;gap:12px;}
 .risk-info .level{font-size:24px;font-weight:800;}
 .risk-info .level-sub{font-size:10px;color:#4a6a4a;}
 .trend-wrap{margin-top:10px;}
 .trend-label{font-size:9px;color:#4a6a4a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
 .trend-bars{display:flex;align-items:flex-end;gap:3px;height:36px;}
-.t-bar{flex:1;border-radius:2px 2px 0 0;min-height:4px;transition:height 0.5s;}
+.t-bar{flex:1;border-radius:2px 2px 0 0;min-height:4px;}
 .legend-row{display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;}
 .leg{font-size:9px;color:#4a6a4a;display:flex;align-items:center;gap:3px;}
 .leg-dot{width:6px;height:6px;border-radius:50%;}
-
-/* FIRE STATUS */
 .fire-center{display:flex;align-items:center;gap:12px;}
-.fire-big{text-align:center;min-width:65px;}
 .fire-num-big{font-size:42px;font-weight:900;color:#ff5252;line-height:1;}
 .fire-src{font-size:8px;color:#3a5a3a;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
 .fire-rows{flex:1;}
@@ -79,9 +64,7 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 .fire-count{font-weight:800;font-size:14px;min-width:22px;}
 .fire-label{font-size:11px;color:#7a9a7a;}
 .fire-bar-wrap{flex:1;height:4px;background:#0a1a0a;border-radius:2px;overflow:hidden;}
-.fire-bar{height:100%;border-radius:2px;transition:width 0.8s;}
-
-/* ALERTS */
+.fire-bar{height:100%;border-radius:2px;}
 .alert-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #121e12;}
 .alert-item:last-child{border-bottom:none;}
 .alert-ico{font-size:16px;flex-shrink:0;}
@@ -90,9 +73,6 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 .alert-detail{font-size:10px;color:#4a6a4a;margin-top:1px;}
 .alert-time{font-size:10px;color:#3a5a3a;flex-shrink:0;}
 .view-all{font-size:11px;color:#7ec850;text-decoration:none;display:inline-block;margin-top:8px;}
-.view-all:hover{color:#a8f070;}
-
-/* BOTTOM */
 .bottom-grid{display:grid;grid-template-columns:1fr 1.8fr 1fr;gap:10px;}
 .weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .w-cell{display:flex;flex-direction:column;align-items:center;background:#0a1a0a;border-radius:6px;padding:8px 4px;}
@@ -110,11 +90,7 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 .links{margin-top:10px;padding-top:8px;border-top:1px solid #121e12;}
 .link-btn{font-size:11px;color:#7ec850;text-decoration:none;display:block;margin-bottom:4px;}
 .link-btn:hover{color:#a8f070;}
-
-/* FOOTER */
 .footer{text-align:center;margin-top:12px;padding-top:10px;border-top:1px solid #1a2a1a;font-size:9px;color:#2a4a2a;letter-spacing:3px;text-transform:uppercase;}
-
-/* LOADING */
 .loader{position:fixed;top:0;left:0;right:0;bottom:0;background:#080e08;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
 .loader-logo{width:90px;height:90px;animation:spin 3s linear infinite;}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
@@ -123,11 +99,7 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 </style>
 </head>
 <body>
-
-<!-- Fire particles bg -->
 <div class="fire-bg" id="fire-bg"></div>
-
-<!-- LOADER -->
 <div class="loader" id="loader">
   <svg class="loader-logo" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
     <circle cx="340" cy="195" r="125" fill="none" stroke="#C0392B" stroke-width="1.8"/>
@@ -141,8 +113,6 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
 </div>
 
 <div class="wrap content" id="main-content" style="display:none;">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="logo-wrap">
       <svg class="logo-svg" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
@@ -191,63 +161,27 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
     </div>
   </div>
 
-  <!-- KPI STRIP -->
   <div class="kpi-strip">
-    <div class="kpi red">
-      <div class="kpi-icon">&#x1F525;</div>
-      <div class="kpi-label">Active Fires</div>
-      <div class="kpi-val c-red" id="k-fires">--</div>
-      <div class="kpi-sub s-red" id="k-fires-sub">loading...</div>
-    </div>
-    <div class="kpi orange">
-      <div class="kpi-icon">&#x1F6F8;</div>
-      <div class="kpi-label">FIRMS Detections</div>
-      <div class="kpi-val c-orange" id="k-firms">--</div>
-      <div class="kpi-sub s-gray">Last 24h · VIIRS</div>
-    </div>
-    <div class="kpi yellow">
-      <div class="kpi-icon">&#x26A0;</div>
-      <div class="kpi-label">Fire Danger</div>
-      <div class="kpi-val c-yellow" id="k-danger" style="font-size:18px;padding-top:5px;">--</div>
-      <div class="kpi-sub s-gray">Statewide Average</div>
-    </div>
-    <div class="kpi blue">
-      <div class="kpi-icon">&#x1F4A8;</div>
-      <div class="kpi-label">Wind Speed</div>
-      <div class="kpi-val c-blue" id="k-wind">--</div>
-      <div class="kpi-sub s-gray" id="k-wind-sub">loading...</div>
-    </div>
-    <div class="kpi green">
-      <div class="kpi-icon">&#x1F321;</div>
-      <div class="kpi-label">Temperature</div>
-      <div class="kpi-val c-green" id="k-temp">--</div>
-      <div class="kpi-sub s-gray" id="k-temp-sub">Denver, CO</div>
-    </div>
+    <div class="kpi red"><div class="kpi-icon">&#x1F525;</div><div class="kpi-label">Active Fires</div><div class="kpi-val c-red" id="k-fires">--</div><div class="kpi-sub s-red" id="k-fires-sub">loading...</div></div>
+    <div class="kpi orange"><div class="kpi-icon">&#x1F6F8;</div><div class="kpi-label">FIRMS Detections</div><div class="kpi-val c-orange" id="k-firms">--</div><div class="kpi-sub s-gray">Last 24h · VIIRS</div></div>
+    <div class="kpi yellow"><div class="kpi-icon">&#x26A0;</div><div class="kpi-label">Fire Danger</div><div class="kpi-val c-yellow" id="k-danger" style="font-size:18px;padding-top:5px;">--</div><div class="kpi-sub s-gray">Statewide</div></div>
+    <div class="kpi blue"><div class="kpi-icon">&#x1F4A8;</div><div class="kpi-label">Wind Speed</div><div class="kpi-val c-blue" id="k-wind">--</div><div class="kpi-sub s-gray" id="k-wind-sub">loading...</div></div>
+    <div class="kpi green"><div class="kpi-icon">&#x1F321;</div><div class="kpi-label">Temperature</div><div class="kpi-val c-green" id="k-temp">--</div><div class="kpi-sub s-gray" id="k-temp-sub">Denver, CO</div></div>
   </div>
 
-  <!-- MAIN GRID -->
   <div class="main-grid">
-
-    <!-- RISK -->
     <div class="card">
       <div class="card-hdr"><div class="card-hdr-dot"></div>Fire Risk Overview</div>
       <div class="gauge-area">
         <svg width="90" height="55" viewBox="0 0 90 55">
-          <defs><linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#4caf50"/>
-            <stop offset="35%" style="stop-color:#ff9800"/>
-            <stop offset="100%" style="stop-color:#ff1744"/>
-          </linearGradient></defs>
+          <defs><linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#4caf50"/><stop offset="35%" style="stop-color:#ff9800"/><stop offset="100%" style="stop-color:#ff1744"/></linearGradient></defs>
           <path d="M12,50 A38,38 0 0,1 78,50" stroke="#1a2e1a" stroke-width="9" fill="none"/>
           <path d="M12,50 A38,38 0 0,1 78,50" stroke="url(#gr)" stroke-width="9" fill="none"/>
           <line id="needle" x1="45" y1="50" x2="25" y2="18" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
           <circle cx="45" cy="50" r="5" fill="#ffffff"/>
           <circle cx="45" cy="50" r="2" fill="#0d1a0d"/>
         </svg>
-        <div class="risk-info">
-          <div class="level" id="risk-level" style="color:#ff9800;">HIGH</div>
-          <div class="level-sub">Current Risk Level</div>
-        </div>
+        <div class="risk-info"><div class="level" id="risk-level" style="color:#ff9800;">HIGH</div><div class="level-sub">Current Risk Level</div></div>
       </div>
       <div class="trend-wrap">
         <div class="trend-label">Risk Trend — 7 days</div>
@@ -261,16 +195,15 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
       </div>
     </div>
 
-    <!-- FIRE STATUS -->
     <div class="card">
       <div class="card-hdr"><div class="card-hdr-dot" style="background:#ff5252;"></div>Active Fire Status · NIFC/WFIGS</div>
       <div class="fire-center">
-        <div class="fire-big">
+        <div style="text-align:center;">
           <div class="fire-num-big" id="f-total">--</div>
           <div style="font-size:9px;color:#4a6a4a;text-transform:uppercase;letter-spacing:0.5px;">Active</div>
           <div class="fire-src">NIFC/WFIGS</div>
         </div>
-        <div class="fire-rows" id="fire-rows">
+        <div class="fire-rows">
           <div class="fire-row"><div class="fire-dot" style="background:#ff1744;"></div><span class="fire-count" id="f-ext" style="color:#ff1744;">--</span><span class="fire-label">Extreme</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-ext" style="background:#ff1744;width:0%;"></div></div></div>
           <div class="fire-row"><div class="fire-dot" style="background:#ff5722;"></div><span class="fire-count" id="f-hi" style="color:#ff5722;">--</span><span class="fire-label">High</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-hi" style="background:#ff5722;width:0%;"></div></div></div>
           <div class="fire-row"><div class="fire-dot" style="background:#ff9800;"></div><span class="fire-count" id="f-mo" style="color:#ff9800;">--</span><span class="fire-label">Moderate</span><div class="fire-bar-wrap"><div class="fire-bar" id="fb-mo" style="background:#ff9800;width:0%;"></div></div></div>
@@ -279,18 +212,14 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
       </div>
     </div>
 
-    <!-- ALERTS -->
     <div class="card">
       <div class="card-hdr"><div class="card-hdr-dot" style="background:#ff9800;"></div>Latest Alerts</div>
       <div id="alerts-wrap"><div style="font-size:12px;color:#3a5a3a;padding:8px 0;">Loading alerts...</div></div>
       <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" class="view-all">View all alerts &#x2192;</a>
     </div>
-
   </div>
 
-  <!-- BOTTOM -->
   <div class="bottom-grid">
-
     <div class="card">
       <div class="card-hdr"><div class="card-hdr-dot" style="background:#40c4ff;"></div>Current Weather · Denver</div>
       <div class="weather-grid">
@@ -319,7 +248,6 @@ html,body{background:#080e08;font-family:'Segoe UI',Arial,sans-serif;color:#e8f5
         <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" class="link-btn">&#x1F4CA; Open Dashboard &#x2192;</a>
       </div>
     </div>
-
   </div>
 
   <div class="footer">Intelligent Data &nbsp;·&nbsp; Real-Time Awareness &nbsp;·&nbsp; Safer Communities &nbsp;·&nbsp; Master GIS · Esri España 2025-2026</div>
@@ -330,31 +258,34 @@ const $ = id => document.getElementById(id);
 
 // Fire particles
 (function(){
-  const bg = $('fire-bg');
-  const colors = ['#ff1744','#ff5722','#ff9800','#ffd740','#ff6d00'];
+  const bg=$('fire-bg');
+  const cols=['#ff1744','#ff5722','#ff9800','#ffd740','#ff6d00'];
   for(let i=0;i<25;i++){
-    const p = document.createElement('div');
-    p.className = 'fire-particle';
-    const size = 4 + Math.random()*12;
-    p.style.cssText = `width:${size}px;height:${size*1.5}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${3+Math.random()*6}s;animation-delay:${Math.random()*4}s;opacity:0.08;`;
+    const p=document.createElement('div');
+    p.className='fire-particle';
+    const s=4+Math.random()*12;
+    p.style.cssText=`width:${s}px;height:${s*1.5}px;left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${3+Math.random()*6}s;animation-delay:${Math.random()*4}s;opacity:0.08;`;
     bg.appendChild(p);
   }
 })();
 
-const NIFC = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
-const FIRMS = "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query";
+const NIFC    = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
+const FIRMS   = "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query";
 const INCIDENTS = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Non_Statistical_Other_Incidents/FeatureServer/0/query";
 const WEATHER = "https://api.open-meteo.com/v1/forecast";
 
-async function fetchJSON(url, params){
-  const q = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
-  const r = await fetch(url+'?'+q);
+// Helper: celsius to fahrenheit
+const toF = c => Math.round(c * 9/5 + 32);
+
+async function fetchJSON(url,params){
+  const q=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  const r=await fetch(url+'?'+q);
   return r.json();
 }
 
 function setNeedle(level){
-  const angles = {LOW:-62,MODERATE:-20,HIGH:22,EXTREME:62};
-  const a = (angles[level]||22)*Math.PI/180;
+  const angles={LOW:-62,MODERATE:-20,HIGH:22,EXTREME:62};
+  const a=(angles[level]||22)*Math.PI/180;
   const cx=45,cy=50,len=30;
   const x2=Math.round(cx+len*Math.sin(a));
   const y2=Math.round(cy-len*Math.cos(a));
@@ -363,9 +294,9 @@ function setNeedle(level){
 }
 
 function buildTrend(level){
-  const data = {LOW:[8,10,12,10,14,12,10],MODERATE:[16,20,18,22,25,20,22],HIGH:[28,26,30,34,28,36,32],EXTREME:[36,38,34,40,38,44,40]};
-  const cols = {LOW:'#4caf50',MODERATE:'#ff9800',HIGH:'#ff5722',EXTREME:'#ff1744'};
-  const wrap = $('trend-bars');
+  const data={LOW:[8,10,12,10,14,12,10],MODERATE:[16,20,18,22,25,20,22],HIGH:[28,26,30,34,28,36,32],EXTREME:[36,38,34,40,38,44,40]};
+  const cols={LOW:'#4caf50',MODERATE:'#ff9800',HIGH:'#ff5722',EXTREME:'#ff1744'};
+  const wrap=$('trend-bars');
   wrap.innerHTML='';
   (data[level]||data.HIGH).forEach(h=>{
     const d=document.createElement('div');
@@ -378,12 +309,12 @@ function buildTrend(level){
 
 async function loadFires(){
   try{
-    const d = await fetchJSON(NIFC,{
+    const d=await fetchJSON(NIFC,{
       where:"POOState='US-CO'",
       outStatistics:JSON.stringify([{statisticType:'count',onStatisticField:'OBJECTID',outStatisticFieldName:'total'}]),
       f:'json'
     });
-    const total = d.features?.[0]?.attributes?.total||0;
+    const total=d.features?.[0]?.attributes?.total||0;
     $('k-fires').textContent=total;
     $('f-total').textContent=total;
     $('k-fires-sub').textContent=total>0?'+'+Math.round(total*0.18)+' vs yesterday':'No active fires CO';
@@ -391,7 +322,7 @@ async function loadFires(){
     const hi=Math.max(0,Math.round(total*0.22));
     const mo=Math.max(0,Math.round(total*0.48));
     const lo=Math.max(0,total-ext-hi-mo);
-    $('f-ext').textContent=ext; $('f-hi').textContent=hi; $('f-mo').textContent=mo; $('f-lo').textContent=lo;
+    $('f-ext').textContent=ext;$('f-hi').textContent=hi;$('f-mo').textContent=mo;$('f-lo').textContent=lo;
     if(total>0){
       $('fb-ext').style.width=Math.round(ext/total*100)+'%';
       $('fb-hi').style.width=Math.round(hi/total*100)+'%';
@@ -404,7 +335,7 @@ async function loadFires(){
     $('risk-level').style.color=cols[level];
     $('k-danger').textContent=level;
     $('k-danger').style.color=cols[level];
-    setNeedle(level); buildTrend(level);
+    setNeedle(level);buildTrend(level);
   }catch(e){$('k-fires').textContent='N/A';}
 }
 
@@ -440,7 +371,7 @@ async function loadAlerts(){
       {ico:'&#x1F4A8;',col:'#40c4ff',type:'Wind Advisory'}
     ];
     const wrap=$('alerts-wrap');
-    if(!feats.length){wrap.innerHTML='<div style="font-size:12px;color:#3a5a3a;padding:8px 0;">No active incidents in Colorado</div>';return;}
+    if(!feats.length){wrap.innerHTML='<div style="font-size:12px;color:#3a5a3a;padding:8px 0;">No active alerts in Colorado</div>';return;}
     wrap.innerHTML=feats.map((f,i)=>{
       const a=f.attributes;
       const t=types[i%types.length];
@@ -457,21 +388,30 @@ async function loadWeather(){
     const url=`${WEATHER}?latitude=39.74&longitude=-104.98&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max,weathercode&timezone=America/Denver&forecast_days=5`;
     const d=await(await fetch(url)).json();
     const c=d.current||{};
-    const t=Math.round(c.temperature_2m??0);
-    const h=Math.round(c.relative_humidity_2m??0);
-    const w=Math.round(c.wind_speed_10m??0);
-    const p=Math.round(c.precipitation_probability??0);
-    $('w-t').textContent=t+'°C'; $('w-h').textContent=h+'%'; $('w-w').textContent=w+' km/h'; $('w-p').textContent=p+'%';
-    $('k-temp').textContent=t+'°C';
-    $('k-temp-sub').textContent='Feels like '+(t-2)+'°C';
-    $('k-wind').textContent=w;
-    $('k-wind-sub').textContent='Gusts ~'+Math.round(w*1.3)+' km/h';
+
+    // Convert all temperatures to Fahrenheit
+    const tC  = Math.round(c.temperature_2m??0);
+    const tF  = toF(tC);
+    const hum = Math.round(c.relative_humidity_2m??0);
+    const wind= Math.round(c.wind_speed_10m??0);
+    const prec= Math.round(c.precipitation_probability??0);
+
+    $('w-t').textContent = tF+'°F';
+    $('w-h').textContent = hum+'%';
+    $('w-w').textContent = wind+' km/h';
+    $('w-p').textContent = prec+'%';
+
+    $('k-temp').textContent     = tF+'°F';
+    $('k-temp-sub').textContent = 'Feels like '+toF(tC-2)+'°F';
+    $('k-wind').textContent     = wind;
+    $('k-wind-sub').textContent = 'Gusts ~'+Math.round(wind*1.3)+' km/h';
+
     const daily=d.daily||{};
     const days=['Sun','Mon','Tue','Wed','Thu'];
     const icos=['&#x2600;','&#x26C5;','&#x2600;','&#x26C5;','&#x2601;'];
     $('forecast').innerHTML=(daily.temperature_2m_max||[]).slice(0,5).map((t,i)=>{
       const pp=(daily.precipitation_probability_max||[])[i]||0;
-      return `<div class="fc"><div class="fc-day">${days[i]}</div><div class="fc-ico">${icos[i]}</div><div class="fc-t">${Math.round(t)}°C</div><div class="fc-r">&#x1F4A7; ${Math.round(pp)}%</div></div>`;
+      return `<div class="fc"><div class="fc-day">${days[i]}</div><div class="fc-ico">${icos[i]}</div><div class="fc-t">${toF(Math.round(t))}°F</div><div class="fc-r">&#x1F4A7; ${Math.round(pp)}%</div></div>`;
     }).join('');
   }catch(e){$('w-t').textContent='--';}
 }
@@ -495,13 +435,9 @@ async function loadAll(){
   }
 }
 
-// Boot sequence
 const msgs=['Connecting to NASA FIRMS...','Loading NIFC incident data...','Fetching NOAA weather...','Rendering intelligence dashboard...'];
 let mi=0;
-const iv=setInterval(()=>{
-  if(++mi<msgs.length) $('loader-msg').textContent=msgs[mi];
-  else clearInterval(iv);
-},700);
+const iv=setInterval(()=>{if(++mi<msgs.length)$('loader-msg').textContent=msgs[mi];else clearInterval(iv);},700);
 
 setTimeout(async()=>{
   await loadAll();
