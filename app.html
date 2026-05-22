@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Colorado Wildfire Intelligence Portal</title>
+<title>Colorado Wildfire Intelligence Portal — CWIA</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 #nav-tabs { display: flex; height: 100%; }
 .nav-tab {
   display: flex; align-items: center; gap: 8px;
-  padding: 0 18px; cursor: pointer;
+  padding: 0 16px; cursor: pointer;
   font-family: var(--font-head); font-size: 13px; font-weight: 600;
   letter-spacing: 1px; text-transform: uppercase;
   color: var(--text-2); border-bottom: 2px solid transparent;
@@ -77,7 +77,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 #timestamp { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); }
 
 /* ── LAYOUT ── */
-#app { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; display: flex; }
+#app { position: fixed; top: 52px; left: 0; right: 0; bottom: 36px; display: flex; }
 
 /* ── LEFT PANEL ── */
 #left-panel {
@@ -98,7 +98,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 }
 .panel-title::before { content:''; width:3px; height:12px; background:var(--accent-1); border-radius:2px; }
 
-/* Layer toggles */
 .layer-item {
   display: flex; align-items: center; gap: 10px;
   padding: 7px 8px; border-radius: 6px; cursor: pointer;
@@ -118,9 +117,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .layer-toggle.on::after { left:15px; }
 .layer-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .layer-name { font-size:12px; color:var(--text-1); flex:1; }
-.layer-opacity { font-family:var(--font-mono); font-size:10px; color:var(--text-3); }
 
-/* KPI cards */
 .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kpi-card {
   background: var(--bg-card); border: 1px solid var(--border);
@@ -129,7 +126,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .kpi-card .kv { font-family: var(--font-head); font-size: 22px; font-weight: 700; line-height: 1; }
 .kpi-card .kl { font-size: 9px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
 
-/* Tools */
 .tool-btn {
   display: flex; align-items: center; gap: 10px;
   width: 100%; padding: 9px 10px; border-radius: 6px;
@@ -144,8 +140,31 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .tool-desc { font-size: 10px; color: var(--text-3); margin-top: 2px; }
 
 /* ── MAP AREA ── */
-#map-container { flex: 1; position: relative; }
+#map-container { flex: 1; position: relative; display: none; }
+#map-container.active { display: block; }
 #viewDiv { width: 100%; height: 100%; }
+
+/* ── EMBED AREA ── */
+#embed-container {
+  flex: 1; position: relative; display: none; flex-direction: column;
+}
+#embed-container.active { display: flex; }
+#embed-iframe {
+  width: 100%; flex: 1; border: none;
+  background: var(--bg-deep);
+}
+.embed-loading {
+  position: absolute; inset: 0; background: var(--bg-deep);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px; z-index: 10;
+}
+.embed-loading.hidden { display: none; }
+.embed-spinner {
+  width: 40px; height: 40px; border: 3px solid var(--border);
+  border-top-color: var(--accent-1); border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── RIGHT PANEL ── */
 #right-panel {
@@ -168,11 +187,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 #bottombar span { display: flex; align-items: center; gap: 6px; }
 #bottombar .sep { color: var(--border); }
 
-/* ── TABS CONTENT ── */
-.tab-content { display: none; height: 100%; flex-direction: column; overflow-y: auto; }
-.tab-content.active { display: flex; }
-
-/* Alert badge */
 .alert-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
@@ -181,7 +195,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .alert-badge.alert { background: rgba(192,57,43,0.2); color: #ff5252; border: 1px solid rgba(192,57,43,0.4); }
 .alert-badge.normal { background: rgba(76,175,80,0.15); color: #69f0ae; border: 1px solid rgba(76,175,80,0.3); }
 
-/* Download options */
+/* Download buttons */
 .dl-btn {
   display: flex; align-items: center; justify-content: space-between;
   padding: 8px 12px; border-radius: 6px; cursor: pointer;
@@ -192,12 +206,11 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .dl-btn:hover { border-color: var(--accent-3); color: var(--accent-3); }
 .dl-ext { font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 3px; background: rgba(76,175,80,0.1); color: var(--accent-3); }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* Map overlay widgets */
+/* Sketch overlay */
 #sketch-toolbar {
   position: absolute; top: 12px; left: 12px;
   background: var(--bg-panel); border: 1px solid var(--border);
@@ -212,9 +225,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
   align-items: center; justify-content: center; transition: all 0.2s;
 }
 .sketch-btn:hover { border-color: var(--accent-1); color: var(--accent-1); }
-.sketch-btn.active { border-color: var(--accent-2); background: rgba(192,57,43,0.15); }
 
-/* Stats popup */
 #stats-panel {
   position: absolute; bottom: 50px; left: 12px; right: 12px;
   background: var(--bg-panel); border: 1px solid var(--border);
@@ -226,42 +237,109 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .stat-row:last-child { border-bottom: none; }
 .stat-val { font-family: var(--font-mono); color: var(--accent-1); font-weight: 600; }
 
-/* Tabs in right panel */
-.rpanel-tabs { display: flex; border-bottom: 1px solid var(--border); }
+/* Right panel tabs */
+.rpanel-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .rpanel-tab {
-  flex: 1; padding: 10px 6px; text-align: center; cursor: pointer;
-  font-family: var(--font-head); font-size: 11px; font-weight: 600;
+  flex: 1; padding: 10px 4px; text-align: center; cursor: pointer;
+  font-family: var(--font-head); font-size: 10px; font-weight: 600;
   letter-spacing: 1px; text-transform: uppercase; color: var(--text-3);
   border-bottom: 2px solid transparent; transition: all 0.2s;
 }
 .rpanel-tab.active { color: var(--accent-1); border-bottom-color: var(--accent-1); }
-.rpanel-content { display: none; padding: 12px 14px; flex: 1; }
+.rpanel-content { display: none; padding: 12px 14px; }
 .rpanel-content.active { display: block; }
 
-/* Fire list */
-.fire-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 8px 0; border-bottom: 1px solid var(--border);
-}
+.fire-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .fire-item:last-child { border-bottom: none; }
 .fire-rank { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); min-width: 20px; }
 .fire-name { font-size: 12px; color: var(--text-1); font-weight: 500; }
 .fire-acres { font-family: var(--font-mono); font-size: 10px; color: var(--accent-1); }
 .fire-year { font-size: 10px; color: var(--text-3); }
 
-/* Legend */
 .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; color: var(--text-2); }
 .legend-box { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
 .legend-gradient { width: 100%; height: 12px; border-radius: 3px; margin-bottom: 4px; }
 
-/* Loading overlay */
+/* Download panel */
+#download-panel {
+  flex: 1; display: none; flex-direction: column;
+  background: var(--bg-deep); overflow-y: auto; padding: 20px;
+}
+#download-panel.active { display: flex; }
+
+.dl-section { margin-bottom: 24px; }
+.dl-section-title {
+  font-family: var(--font-head); font-size: 14px; font-weight: 700;
+  color: var(--accent-1); letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 12px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.dl-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px; transition: all 0.2s;
+}
+.dl-card:hover { border-color: var(--accent-1); transform: translateY(-1px); }
+.dl-card-title { font-size: 13px; color: var(--text-1); font-weight: 500; margin-bottom: 6px; }
+.dl-card-desc { font-size: 10px; color: var(--text-3); margin-bottom: 10px; }
+.dl-formats { display: flex; flex-wrap: wrap; gap: 5px; }
+.dl-format-btn {
+  padding: 4px 8px; border-radius: 4px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  border: 1px solid var(--border); background: var(--bg-deep);
+  color: var(--text-2); transition: all 0.15s;
+}
+.dl-format-btn:hover { border-color: var(--accent-3); color: var(--accent-3); background: rgba(76,175,80,0.08); }
+
+/* AOI download section */
+.aoi-section {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 20px;
+}
+.aoi-section-title {
+  font-family: var(--font-head); font-size: 13px; font-weight: 700;
+  color: var(--accent-1); letter-spacing: 1px; margin-bottom: 8px;
+}
+.aoi-step { font-size: 11px; color: var(--text-2); margin-bottom: 6px; display: flex; gap: 8px; }
+.aoi-step span { color: var(--accent-1); font-family: var(--font-mono); }
+
+/* Apps panel */
+#apps-panel {
+  flex: 1; display: none; flex-direction: column;
+  background: var(--bg-deep); overflow-y: auto; padding: 20px;
+}
+#apps-panel.active { display: flex; }
+.app-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 12px;
+  cursor: pointer; transition: all 0.2s; display: flex; gap: 14px; align-items: center;
+}
+.app-card:hover { border-color: var(--accent-1); background: rgba(255,140,66,0.04); }
+.app-card-icon { font-size: 28px; flex-shrink: 0; }
+.app-card-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--accent-1); letter-spacing: 1px; }
+.app-card-desc { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+.app-card-tool { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); margin-top: 4px; }
+.app-card-badge {
+  margin-left: auto; padding: 3px 8px; border-radius: 4px;
+  font-family: var(--font-mono); font-size: 10px; flex-shrink: 0;
+  background: rgba(76,175,80,0.1); color: var(--accent-3); border: 1px solid rgba(76,175,80,0.3);
+}
+
+/* Alerts panel */
+#alerts-panel {
+  flex: 1; display: none; flex-direction: column;
+  background: var(--bg-deep); overflow-y: auto; padding: 20px;
+}
+#alerts-panel.active { display: flex; }
+
+/* Loading */
 #loading {
   position: fixed; inset: 0; background: var(--bg-deep);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   z-index: 9999;
 }
 #loading .load-logo { width: 80px; height: 80px; animation: spin 3s linear infinite; }
-@keyframes spin { from{transform:rotate(0deg);}to{transform:rotate(360deg);} }
 #loading .load-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--accent-1); letter-spacing: 3px; margin-top: 16px; }
 #loading .load-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); margin-top: 6px; }
 #loading .load-bar { width: 200px; height: 2px; background: var(--border); border-radius: 1px; margin-top: 20px; overflow: hidden; }
@@ -302,11 +380,12 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
   </div>
 
   <div id="nav-tabs">
-    <div class="nav-tab active" onclick="switchTab('map')" id="tab-map"><span class="tab-icon">🗺️</span> Map Viewer</div>
-    <div class="nav-tab" onclick="switchTab('analysis')" id="tab-analysis"><span class="tab-icon">📊</span> Analysis</div>
+    <div class="nav-tab" onclick="switchTab('map')" id="tab-map"><span class="tab-icon">🗺️</span> Map Viewer</div>
+    <div class="nav-tab active" onclick="switchTab('analytics')" id="tab-analytics"><span class="tab-icon">📊</span> Analytics</div>
+    <div class="nav-tab" onclick="switchTab('apps')" id="tab-apps"><span class="tab-icon">🔗</span> Applications</div>
     <div class="nav-tab" onclick="switchTab('alerts')" id="tab-alerts"><span class="tab-icon">🚨</span> Alerts</div>
-    <div class="nav-tab" onclick="switchTab('cameras')" id="tab-cameras"><span class="tab-icon">📷</span> Cameras</div>
     <div class="nav-tab" onclick="switchTab('download')" id="tab-download"><span class="tab-icon">⬇️</span> Download</div>
+    <div class="nav-tab" onclick="switchTab('cameras')" id="tab-cameras"><span class="tab-icon">📷</span> Cameras</div>
   </div>
 
   <div id="topbar-right">
@@ -321,7 +400,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
   <!-- LEFT PANEL -->
   <div id="left-panel">
 
-    <!-- Alert Level -->
     <div class="panel-section">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div class="panel-title" style="margin-bottom:0;">Alert Level</div>
@@ -330,7 +408,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);" id="alert-detail">Max FRP: Loading... · NASA FIRMS</div>
     </div>
 
-    <!-- KPIs -->
     <div class="panel-section">
       <div class="panel-title">Live Metrics</div>
       <div class="kpi-grid">
@@ -341,59 +418,45 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       </div>
     </div>
 
-    <!-- Layer Control -->
-    <div class="panel-section" style="flex:1;overflow-y:auto;">
+    <div class="panel-section" style="flex:1;overflow-y:auto;" id="layer-section">
       <div class="panel-title">Layer Control</div>
-
-      <div class="layer-item" onclick="toggleLayer('risk')">
-        <div class="layer-toggle on" id="toggle-risk"></div>
-        <div class="layer-dot" style="background:linear-gradient(90deg,#4caf50,#ff1744);"></div>
-        <div><div class="layer-name">Wildfire Risk Index</div><div style="font-size:10px;color:var(--text-3);">Composite 5-variable model</div></div>
-      </div>
-
       <div class="layer-item" onclick="toggleLayer('firms')">
         <div class="layer-toggle on" id="toggle-firms"></div>
         <div class="layer-dot" style="background:#ff5252;"></div>
         <div><div class="layer-name">Active Fire Detections</div><div style="font-size:10px;color:var(--text-3);">NASA FIRMS · VIIRS</div></div>
       </div>
-
       <div class="layer-item" onclick="toggleLayer('perimeters')">
         <div class="layer-toggle on" id="toggle-perimeters"></div>
         <div class="layer-dot" style="background:#ff8c42;"></div>
         <div><div class="layer-name">Historic Perimeters</div><div style="font-size:10px;color:var(--text-3);">690 mapped · Colorado</div></div>
       </div>
-
-      <div class="layer-item" onclick="toggleLayer('wui')">
-        <div class="layer-toggle" id="toggle-wui"></div>
-        <div class="layer-dot" style="background:#ffd740;"></div>
-        <div><div class="layer-name">WUI — Urban Interface</div><div style="font-size:10px;color:var(--text-3);">Wildland-Urban Interface</div></div>
+      <div class="layer-item" onclick="toggleLayer('wfigs')">
+        <div class="layer-toggle on" id="toggle-wfigs"></div>
+        <div class="layer-dot" style="background:#ff1744;"></div>
+        <div><div class="layer-name">Current Perimeters</div><div style="font-size:10px;color:var(--text-3);">WFIGS · Active</div></div>
       </div>
-
+      <div class="layer-item" onclick="toggleLayer('redFlag')">
+        <div class="layer-toggle on" id="toggle-redFlag"></div>
+        <div class="layer-dot" style="background:#e040fb;"></div>
+        <div><div class="layer-name">Red Flag Warnings</div><div style="font-size:10px;color:var(--text-3);">NWS · Active alerts</div></div>
+      </div>
       <div class="layer-item" onclick="toggleLayer('infra')">
         <div class="layer-toggle" id="toggle-infra"></div>
         <div class="layer-dot" style="background:#40c4ff;"></div>
         <div><div class="layer-name">Critical Infrastructure</div><div style="font-size:10px;color:var(--text-3);">Hospitals · Schools · Routes</div></div>
       </div>
-
       <div class="layer-item" onclick="toggleLayer('weather')">
         <div class="layer-toggle" id="toggle-weather"></div>
         <div class="layer-dot" style="background:#69f0ae;"></div>
-        <div><div class="layer-name">Weather Stations</div><div style="font-size:10px;color:var(--text-3);">NOAA · KDEN</div></div>
-      </div>
-
-      <div class="layer-item" onclick="toggleLayer('redFlag')">
-        <div class="layer-toggle" id="toggle-redFlag"></div>
-        <div class="layer-dot" style="background:#ff1744;"></div>
-        <div><div class="layer-name">Red Flag Warnings</div><div style="font-size:10px;color:var(--text-3);">NWS · Active alerts</div></div>
+        <div><div class="layer-name">Weather Stations</div><div style="font-size:10px;color:var(--text-3);">NOAA · RAWS</div></div>
       </div>
     </div>
 
-    <!-- Tools -->
-    <div class="panel-section">
+    <div class="panel-section" id="tools-section">
       <div class="panel-title">Analysis Tools</div>
       <button class="tool-btn" onclick="activateTool('sketch')" id="btn-sketch">
         <span class="tool-icon">✏️</span>
-        <div><div>Draw Area of Interest</div><div class="tool-desc">Analyze custom polygon · Export results</div></div>
+        <div><div>Draw Area of Interest</div><div class="tool-desc">Analyze polygon · Export results</div></div>
       </button>
       <button class="tool-btn" onclick="activateTool('buffer')" id="btn-buffer">
         <span class="tool-icon">⭕</span>
@@ -410,26 +473,285 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
     </div>
   </div>
 
-  <!-- MAP -->
+  <!-- MAP VIEWER -->
   <div id="map-container">
     <div id="viewDiv"></div>
-
-    <!-- Sketch toolbar overlay -->
     <div id="sketch-toolbar">
-      <div class="sketch-btn" onclick="sketchAction('polygon')" title="Draw Polygon">⬡</div>
-      <div class="sketch-btn" onclick="sketchAction('rectangle')" title="Draw Rectangle">⬜</div>
-      <div class="sketch-btn" onclick="sketchAction('circle')" title="Draw Circle">⭕</div>
+      <div class="sketch-btn" onclick="sketchAction('polygon')" title="Polygon">⬡</div>
+      <div class="sketch-btn" onclick="sketchAction('rectangle')" title="Rectangle">⬜</div>
+      <div class="sketch-btn" onclick="sketchAction('circle')" title="Circle">⭕</div>
       <div class="sketch-btn" onclick="sketchAction('clear')" title="Clear">✕</div>
     </div>
-
-    <!-- Stats panel overlay -->
     <div id="stats-panel">
       <h3>📊 AOI Analysis Results</h3>
       <div id="stats-content"></div>
-      <button class="tool-btn" style="margin-top:10px;" onclick="exportAOI()">
+      <button class="tool-btn" style="margin-top:10px;" onclick="showAOIExport()">
         <span class="tool-icon">⬇️</span>
-        <div><div>Export AOI Data</div><div class="tool-desc">GeoJSON · CSV · Shapefile</div></div>
+        <div><div>Export AOI Data</div><div class="tool-desc">Multiple formats available</div></div>
       </button>
+    </div>
+  </div>
+
+  <!-- ANALYTICS EMBED (Experience Builder) -->
+  <div id="embed-container" class="active">
+    <div class="embed-loading" id="embed-loader">
+      <div class="embed-spinner"></div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);">Loading Wildfire Analytics...</div>
+    </div>
+    <iframe
+      id="embed-iframe"
+      src="https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8"
+      allowfullscreen
+      onload="document.getElementById('embed-loader').classList.add('hidden')"
+    ></iframe>
+  </div>
+
+  <!-- APPLICATIONS PANEL -->
+  <div id="apps-panel">
+    <div style="margin-bottom:16px;">
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent-1);letter-spacing:2px;margin-bottom:4px;">CWIA APPLICATIONS</div>
+      <div style="font-size:11px;color:var(--text-3);">Click any application to open it in this viewer or in a new tab</div>
+    </div>
+
+    <div class="app-card" onclick="loadEmbed('https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8','analytics')">
+      <div class="app-card-icon">📊</div>
+      <div style="flex:1;">
+        <div class="app-card-title">Wildfire Risk Index</div>
+        <div class="app-card-desc">Interactive spatial analysis · 5-variable composite risk model · Filter by county</div>
+        <div class="app-card-tool">Experience Builder · ArcGIS Online</div>
+      </div>
+      <div class="app-card-badge">LIVE</div>
+    </div>
+
+    <div class="app-card" onclick="loadEmbed('https://www.arcgis.com/apps/dashboards/d9a57005e6f84e198e21d8c1c4ecf065','analytics')">
+      <div class="app-card-icon">🖥️</div>
+      <div style="flex:1;">
+        <div class="app-card-title">Operations Center</div>
+        <div class="app-card-desc">Real-time monitoring · Active incidents · Weather KDEN · Infrastructure at risk</div>
+        <div class="app-card-tool">Dashboard · ArcGIS Online</div>
+      </div>
+      <div class="app-card-badge">LIVE</div>
+    </div>
+
+    <div class="app-card" onclick="loadEmbed('https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba','analytics')">
+      <div class="app-card-icon">📖</div>
+      <div style="flex:1;">
+        <div class="app-card-title">Wildfire Intelligence Atlas</div>
+        <div class="app-card-desc">Narrative public portal · Historic perimeters · Risk overview · Prevention guides</div>
+        <div class="app-card-tool">StoryMaps · ArcGIS Online</div>
+      </div>
+      <div class="app-card-badge">PUBLIC</div>
+    </div>
+
+    <div class="app-card" onclick="window.open('https://www.arcgis.com/home/item.html?id=fc8fb94ac1a040cb98d5f10fcef7c7d8','_blank')">
+      <div class="app-card-icon">🏕️</div>
+      <div style="flex:1;">
+        <div class="app-card-title">Field Operations Map</div>
+        <div class="app-card-desc">Offline-capable · 8 operational layers · Fire detections · RAWS weather · Red Flag warnings</div>
+        <div class="app-card-tool">Field Maps · ArcGIS Online</div>
+      </div>
+      <div class="app-card-badge">FIELD</div>
+    </div>
+
+    <div class="app-card" onclick="loadEmbed('https://cwia-colorado-mastergis.hub.arcgis.com','analytics')">
+      <div class="app-card-icon">🌐</div>
+      <div style="flex:1;">
+        <div class="app-card-title">CWIA Hub Site</div>
+        <div class="app-card-desc">Public portal · All applications & services · Data catalog · Open data access</div>
+        <div class="app-card-tool">ArcGIS Hub · Public</div>
+      </div>
+      <div class="app-card-badge">HUB</div>
+    </div>
+  </div>
+
+  <!-- ALERTS PANEL -->
+  <div id="alerts-panel">
+    <div style="margin-bottom:16px;">
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent-2);letter-spacing:2px;margin-bottom:4px;">ACTIVE ALERTS</div>
+      <div style="font-size:11px;color:var(--text-3);">Real-time alerts from NOAA NWS and NIFC · Colorado</div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:10px;">WEATHER · DENVER KDEN · OPEN-METEO</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="text-align:center;background:var(--bg-deep);border-radius:8px;padding:10px;">
+          <div style="font-size:18px;">🌡️</div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent-1);" id="al-temp">--</div>
+          <div style="font-size:9px;color:var(--text-3);">TEMP °F</div>
+        </div>
+        <div style="text-align:center;background:var(--bg-deep);border-radius:8px;padding:10px;">
+          <div style="font-size:18px;">💧</div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:#40c4ff;" id="al-hum">--</div>
+          <div style="font-size:9px;color:var(--text-3);">HUMIDITY %</div>
+        </div>
+        <div style="text-align:center;background:var(--bg-deep);border-radius:8px;padding:10px;">
+          <div style="font-size:18px;">💨</div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:#69f0ae;" id="al-wind">--</div>
+          <div style="font-size:9px;color:var(--text-3);">WIND km/h</div>
+        </div>
+        <div style="text-align:center;background:var(--bg-deep);border-radius:8px;padding:10px;">
+          <div style="font-size:18px;">🌧️</div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:#4fc3f7;" id="al-prec">--</div>
+          <div style="font-size:9px;color:var(--text-3);">PRECIP %</div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:8px;">5-DAY FORECAST · COLORADO</div>
+      <div id="al-forecast" style="display:flex;gap:6px;"></div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:10px;">RED FLAG CONDITIONS · NWS</div>
+      <iframe
+        src="https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/RedFlagWarning/FeatureServer/0/query?where=1%3D1&outFields=*&f=json"
+        style="display:none;" id="rf-frame"
+      ></iframe>
+      <div id="rf-status" style="font-size:12px;color:var(--text-2);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#ff1744;" id="rf-dot"></div>
+          <span id="rf-text">Checking Red Flag Warnings...</span>
+        </div>
+        <div style="font-size:10px;color:var(--text-3);">Source: NOAA National Weather Service · Colorado</div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:10px;">ACTIVE INCIDENTS · NIFC/WFIGS · COLORADO</div>
+      <div id="incidents-list" style="font-size:12px;color:var(--text-2);">Loading incidents...</div>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD PANEL -->
+  <div id="download-panel">
+    <div style="margin-bottom:16px;">
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent-3);letter-spacing:2px;margin-bottom:4px;">DATA DOWNLOAD CENTER</div>
+      <div style="font-size:11px;color:var(--text-3);">Download CWIA layers in multiple formats · Select area for custom exports</div>
+    </div>
+
+    <!-- AOI Download -->
+    <div class="aoi-section">
+      <div class="aoi-section-title">🖊️ Custom Area Download (AOI)</div>
+      <div class="aoi-step"><span>1.</span> Switch to Map Viewer tab</div>
+      <div class="aoi-step"><span>2.</span> Click "Draw Area of Interest" in the left panel</div>
+      <div class="aoi-step"><span>3.</span> Draw your polygon on the map</div>
+      <div class="aoi-step"><span>4.</span> Return here and click "Export AOI"</div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('geojson')">GeoJSON</button>
+        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('csv')">CSV</button>
+        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('kml')">KML/KMZ</button>
+        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('wkt')">WKT</button>
+      </div>
+      <div id="aoi-msg" style="margin-top:8px;font-size:10px;color:var(--text-3);">No AOI defined yet. Draw an area in Map Viewer first.</div>
+    </div>
+
+    <!-- Layers by group -->
+    <div class="dl-section">
+      <div class="dl-section-title">🔥 Fire & Risk Data</div>
+      <div class="dl-grid">
+        <div class="dl-card">
+          <div class="dl-card-title">Wildfire Risk Index</div>
+          <div class="dl-card-desc">5-variable composite · Colorado · 30m resolution</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('risk','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('risk','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('risk','kml')">KML</span>
+            <span class="dl-format-btn" onclick="dlLayer('risk','shapefile')">Shapefile</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">Historic Fire Perimeters</div>
+          <div class="dl-card-desc">690 perimeters · Colorado 2020-2022 · NIFC/MTBS</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('perimeters','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('perimeters','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('perimeters','kml')">KML</span>
+            <span class="dl-format-btn" onclick="dlLayer('perimeters','shapefile')">Shapefile</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">Active Fire Detections</div>
+          <div class="dl-card-desc">NASA FIRMS · VIIRS · Updated daily</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('firms','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('firms','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('firms','kml')">KML</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">Red Flag Warnings</div>
+          <div class="dl-card-desc">NOAA NWS · Real-time · Colorado</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('redflag','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('redflag','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('redflag','kml')">KML</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-section">
+      <div class="dl-section-title">🏗️ Infrastructure & Boundaries</div>
+      <div class="dl-grid">
+        <div class="dl-card">
+          <div class="dl-card-title">Critical Infrastructure</div>
+          <div class="dl-card-desc">Hospitals · Schools · Fire stations · Routes · FEMA shelters</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('infra','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('infra','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('infra','kml')">KML</span>
+            <span class="dl-format-btn" onclick="dlLayer('infra','shapefile')">Shapefile</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">County Boundaries</div>
+          <div class="dl-card-desc">64 counties · Colorado · US Census TIGER</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('counties','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('counties','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('counties','kml')">KML</span>
+            <span class="dl-format-btn" onclick="dlLayer('counties','shapefile')">Shapefile</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">Weather Stations RAWS</div>
+          <div class="dl-card-desc">NOAA RAWS · 149 stations · Colorado</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('weather','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('weather','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('weather','kml')">KML</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">WUI — Urban Interface</div>
+          <div class="dl-card-desc">Wildland-Urban Interface · USFS/CSFS · Colorado</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="dlLayer('wui','geojson')">GeoJSON</span>
+            <span class="dl-format-btn" onclick="dlLayer('wui','csv')">CSV</span>
+            <span class="dl-format-btn" onclick="dlLayer('wui','kml')">KML</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-section">
+      <div class="dl-section-title">📄 Reports & Documents</div>
+      <div class="dl-grid">
+        <div class="dl-card">
+          <div class="dl-card-title">CWIA System Report</div>
+          <div class="dl-card-desc">Full TFM technical report · Arturo Fernández Girón · Esri España 2025-2026</div>
+          <div class="dl-formats">
+            <span class="dl-format-btn" onclick="alert('PDF report will be available after June 2, 2026 final submission.')">PDF</span>
+          </div>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-title">Open Data Portal</div>
+          <div class="dl-card-desc">All CWIA published services · ArcGIS Online catalog</div>
+          <div class="dl-formats">
+            <a href="https://cwia-colorado-mastergis.hub.arcgis.com" target="_blank" class="dl-format-btn" style="text-decoration:none;">Hub Site →</a>
+            <a href="https://data-nifc.opendata.arcgis.com" target="_blank" class="dl-format-btn" style="text-decoration:none;">NIFC →</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -441,7 +763,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div class="rpanel-tab" onclick="switchRPanel('fires')" id="rp-fires">Fires</div>
     </div>
 
-    <!-- INFO TAB -->
     <div class="rpanel-content active" id="rpc-info">
       <div class="panel-title" style="margin-bottom:10px;">System Status</div>
 
@@ -460,7 +781,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
         <div id="rp-forecast" style="display:flex;gap:6px;justify-content:space-between;"></div>
       </div>
 
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">
         <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:8px;">DATA SOURCES</div>
         <div style="font-size:10px;color:var(--text-2);line-height:1.8;">
           NASA FIRMS · NIFC/WFIGS<br>
@@ -470,41 +791,41 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
         </div>
       </div>
 
-      <div style="margin-top:10px;">
+      <div>
         <div class="panel-title">Quick Links</div>
-        <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" target="_blank" class="dl-btn">🗺️ StoryMap <span class="dl-ext">→</span></a>
-        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" target="_blank" class="dl-btn">📊 Dashboard <span class="dl-ext">→</span></a>
+        <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" target="_blank" class="dl-btn">📖 StoryMap <span class="dl-ext">→</span></a>
+        <a href="https://www.arcgis.com/apps/dashboards/d9a57005e6f84e198e21d8c1c4ecf065" target="_blank" class="dl-btn">🖥️ Dashboard <span class="dl-ext">→</span></a>
+        <a href="https://cwia-colorado-mastergis.hub.arcgis.com" target="_blank" class="dl-btn">🌐 Hub Site <span class="dl-ext">→</span></a>
+        <a href="https://www.alertwildfire.org" target="_blank" class="dl-btn">📷 Live Cameras <span class="dl-ext">→</span></a>
       </div>
     </div>
 
-    <!-- LEGEND TAB -->
     <div class="rpanel-content" id="rpc-legend">
       <div class="panel-title" style="margin-bottom:10px;">Risk Index</div>
       <div class="legend-gradient" style="background:linear-gradient(90deg,#267300,#ffff00,#ff8c00,#ff0000,#8b0000);"></div>
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-bottom:12px;">
         <span>Very Low</span><span>Low</span><span>Moderate</span><span>High</span><span>Very High</span>
       </div>
-
       <div class="panel-title" style="margin-bottom:10px;">Fire Perimeters</div>
       <div class="legend-item"><div class="legend-box" style="background:rgba(255,140,66,0.3);border:2px solid #ff8c42;"></div>Historic Fire Perimeter</div>
       <div class="legend-item"><div class="legend-box" style="background:rgba(255,82,82,0.3);border:2px solid #ff5252;"></div>Active Fire Detection</div>
-
+      <div class="legend-item"><div class="legend-box" style="background:rgba(255,23,23,0.3);border:2px solid #ff1744;"></div>Current WFIGS Perimeter</div>
       <div class="panel-title" style="margin-bottom:10px;margin-top:12px;">Infrastructure</div>
       <div class="legend-item"><div class="legend-box" style="background:#ff5252;border-radius:50%;"></div>Hospital / Medical</div>
       <div class="legend-item"><div class="legend-box" style="background:#ffd740;border-radius:50%;"></div>Fire Station</div>
       <div class="legend-item"><div class="legend-box" style="background:#40c4ff;border-radius:50%;"></div>Evacuation Route</div>
       <div class="legend-item"><div class="legend-box" style="background:#69f0ae;border-radius:50%;"></div>FEMA Shelter</div>
+      <div class="legend-item"><div class="legend-box" style="background:#e040fb;border-radius:2px;border:1px solid #e040fb;"></div>Red Flag Warning</div>
     </div>
 
-    <!-- FIRES TAB -->
     <div class="rpanel-content" id="rpc-fires">
       <div class="panel-title" style="margin-bottom:4px;">Largest Fires · Colorado</div>
       <div style="font-size:10px;color:var(--text-3);margin-bottom:10px;">Ranked by acres burned</div>
       <div id="fire-list">
         <div class="fire-item"><div class="fire-rank">#1</div><div><div class="fire-name">Cameron Peak Fire</div><div class="fire-acres">208,913 acres</div><div class="fire-year">2020 · Larimer County</div></div></div>
         <div class="fire-item"><div class="fire-rank">#2</div><div><div class="fire-name">East Troublesome Fire</div><div class="fire-acres">193,812 acres</div><div class="fire-year">2020 · Grand County</div></div></div>
-        <div class="fire-item"><div class="fire-rank">#3</div><div><div class="fire-name">Pine Gulch Fire</div><div class="fire-acres">139,007 acres</div><div class="fire-year">2020 · Mesa County</div></div></div>
-        <div class="fire-item"><div class="fire-rank">#4</div><div><div class="fire-name">Mullen Fire</div><div class="fire-acres">176,878 acres</div><div class="fire-year">2020 · Jackson County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#3</div><div><div class="fire-name">Mullen Fire</div><div class="fire-acres">176,878 acres</div><div class="fire-year">2020 · Jackson County</div></div></div>
+        <div class="fire-item"><div class="fire-rank">#4</div><div><div class="fire-name">Pine Gulch Fire</div><div class="fire-acres">139,007 acres</div><div class="fire-year">2020 · Mesa County</div></div></div>
         <div class="fire-item"><div class="fire-rank">#5</div><div><div class="fire-name">Hayman Fire</div><div class="fire-acres">137,760 acres</div><div class="fire-year">2002 · Park County</div></div></div>
         <div class="fire-item"><div class="fire-rank">#6</div><div><div class="fire-name">High Park Fire</div><div class="fire-acres">87,284 acres</div><div class="fire-year">2012 · Larimer County</div></div></div>
         <div class="fire-item"><div class="fire-rank">#7</div><div><div class="fire-name">Marshall Fire</div><div class="fire-acres">6,026 acres</div><div class="fire-year">2021 · Boulder County</div></div></div>
@@ -528,400 +849,468 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 </div>
 
 <script>
-require([
-  "esri/Map",
-  "esri/views/MapView",
-  "esri/layers/FeatureLayer",
-  "esri/layers/TileLayer",
-  "esri/layers/WebTileLayer",
-  "esri/widgets/Sketch",
-  "esri/widgets/ScaleBar",
-  "esri/widgets/Home",
-  "esri/widgets/Compass",
-  "esri/widgets/Search",
-  "esri/widgets/TimeSlider",
-  "esri/layers/GraphicsLayer",
-  "esri/geometry/geometryEngine",
-  "esri/Graphic"
-], function(
-  Map, MapView, FeatureLayer, TileLayer, WebTileLayer,
-  Sketch, ScaleBar, Home, Compass, Search, TimeSlider,
-  GraphicsLayer, geometryEngine, Graphic
-) {
+// ── DOWNLOAD LAYER URLS ──────────────────────────────────────────────────────
+const LAYER_URLS = {
+  risk:       "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_AnalisisRiesgo_Colorado/MapServer/0",
+  perimeters: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/Historic_Fire_Perimeters_Colorado/FeatureServer/0",
+  firms:      "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0",
+  redflag:    "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/RedFlagWarning/FeatureServer/0",
+  infra:      "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0",
+  counties:   "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Condados_Colorado/FeatureServer/0",
+  weather:    "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Meteorologia_NOAA/FeatureServer/0",
+  wui:        "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0",
+};
 
-  // ── SERVICE URLS ──
-  const URLS = {
-    riskIndex:    "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Wildfire_Risk_Index_Colorado/FeatureServer/0",
-    firms:        "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0",
-    perimeters:   "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Historic_Geomac_Perimeters_Combined_2000_2018/FeatureServer/0",
-    wfigs:        "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
-    incidents:    "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0",
-    redFlag:      "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/RedFlagWarning/FeatureServer/0",
-  };
+// ── DOWNLOAD FUNCTION ────────────────────────────────────────────────────────
+window.dlLayer = function(layerKey, format) {
+  const base = LAYER_URLS[layerKey];
+  if(!base) { alert('Layer not available for download.'); return; }
 
-  // ── GRAPHICS LAYER ──
-  const sketchLayer = new GraphicsLayer();
+  let url;
+  const where = "1%3D1";
+  const outFields = "*";
 
-  // ── LAYERS ──
-  const firmsLayer = new FeatureLayer({
-    url: URLS.firms,
-    id: "firms",
-    title: "Active Fire Detections",
-    definitionExpression: "acq_date >= CURRENT_TIMESTAMP - INTERVAL '2' DAY",
-    renderer: {
-      type: "simple",
-      symbol: { type: "simple-marker", color: [255,82,82,0.85], outline: { color: [255,23,23], width: 0.5 }, size: 8 }
-    },
-    opacity: 0.9
-  });
+  if(format === 'geojson') {
+    url = `${base}/query?where=${where}&outFields=${outFields}&f=geojson`;
+  } else if(format === 'csv') {
+    url = `${base}/query?where=${where}&outFields=${outFields}&f=json`;
+    // Fetch and convert to CSV
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        if(!data.features || data.features.length === 0) {
+          alert('No data available for this layer in the current extent.');
+          return;
+        }
+        const fields = Object.keys(data.features[0].attributes || {});
+        const rows = [fields.join(',')];
+        data.features.forEach(f => {
+          const row = fields.map(k => {
+            const v = f.attributes[k];
+            return typeof v === 'string' ? `"${v.replace(/"/g,'""')}"` : (v ?? '');
+          });
+          rows.push(row.join(','));
+        });
+        downloadBlob(rows.join('\n'), `cwia_${layerKey}.csv`, 'text/csv');
+      })
+      .catch(() => alert('Download failed. Please try again.'));
+    return;
+  } else if(format === 'kml') {
+    // Convert via GeoJSON then to KML
+    const gjUrl = `${base}/query?where=${where}&outFields=${outFields}&f=geojson`;
+    fetch(gjUrl)
+      .then(r => r.json())
+      .then(gj => {
+        const kml = geojsonToKML(gj, layerKey);
+        downloadBlob(kml, `cwia_${layerKey}.kml`, 'application/vnd.google-earth.kml+xml');
+      })
+      .catch(() => alert('KML export failed.'));
+    return;
+  } else if(format === 'shapefile') {
+    // Open AGOL item page for shapefile download
+    alert(`To download as Shapefile:\n\n1. Open the CWIA Hub Site\n2. Find the layer: ${layerKey}\n3. Click Download → Shapefile\n\nOpening Hub Site...`);
+    window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
+    return;
+  }
 
-  const perimLayer = new FeatureLayer({
-    url: URLS.perimeters,
-    id: "perimeters",
-    title: "Historic Fire Perimeters",
-    definitionExpression: "state = 'CO'",
-    renderer: {
-      type: "simple",
-      symbol: { type: "simple-fill", color: [255,140,66,0.25], outline: { color: [255,140,66], width: 1.5 } }
-    },
-    opacity: 0.8
-  });
+  // Direct download via fetch
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `cwia_${layerKey}.geojson`;
+      a.click();
+    })
+    .catch(() => window.open(url, '_blank'));
+};
 
-  const wfigsLayer = new FeatureLayer({
-    url: URLS.wfigs,
-    id: "wfigs",
-    title: "Current Perimeters WFIGS",
-    renderer: {
-      type: "simple",
-      symbol: { type: "simple-fill", color: [255,23,23,0.3], outline: { color: [255,23,23], width: 2 } }
-    },
-    opacity: 0.9
-  });
+// ── AOI EXPORT ───────────────────────────────────────────────────────────────
+window.exportFormat = function(format) {
+  if(!window._lastGeometry) {
+    document.getElementById('aoi-msg').textContent = '⚠️ No AOI defined. Draw an area in Map Viewer first.';
+    return;
+  }
+  const geom = window._lastGeometry;
+  const stats = window._lastStats || {};
 
-  const incidentLayer = new FeatureLayer({
-    url: URLS.incidents,
-    id: "incidents",
-    title: "Active Incidents",
-    definitionExpression: "POOState = 'US-CO'",
-    renderer: {
-      type: "simple",
-      symbol: {
-        type: "picture-marker",
-        url: "https://static.arcgis.com/images/Symbols/Safety/esriCrimeMarker_85_Victim.png",
-        width: "24px", height: "24px"
-      }
-    }
-  });
-
-  const redFlagLayer = new FeatureLayer({
-    url: URLS.redFlag,
-    id: "redFlag",
-    title: "Red Flag Warnings",
-    visible: false,
-    renderer: {
-      type: "simple",
-      symbol: { type: "simple-fill", color: [255,0,0,0.15], outline: { color: [255,0,0,1], width: 2 } }
-    },
-    opacity: 0.7
-  });
-
-  // ── MAP ──
-  const map = new Map({
-    basemap: "dark-gray-vector",
-    layers: [perimLayer, wfigsLayer, firmsLayer, incidentLayer, redFlagLayer, sketchLayer]
-  });
-
-  // ── VIEW ──
-  const view = new MapView({
-    container: "viewDiv",
-    map: map,
-    center: [-105.5, 39.0],
-    zoom: 7,
-    ui: { components: [] }
-  });
-
-  // ── WIDGETS ──
-  view.when(() => {
-    const home = new Home({ view });
-    const compass = new Compass({ view });
-    const scalebar = new ScaleBar({ view, unit: "metric" });
-    const search = new Search({
-      view,
-      includeDefaultSources: false,
-      sources: [{
-        layer: incidentLayer,
-        searchFields: ["IncidentName"],
-        displayField: "IncidentName",
-        exactMatch: false,
-        outFields: ["*"],
-        name: "Fire Incidents",
-        placeholder: "Search fire incidents..."
+  if(format === 'geojson') {
+    const gj = {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        geometry: { type: "Polygon", coordinates: geom.rings },
+        properties: { ...stats, source: "CWIA Portal", crs: "WGS84", date: new Date().toISOString() }
       }]
-    });
-
-    view.ui.add(home, "top-right");
-    view.ui.add(compass, "top-right");
-    view.ui.add(scalebar, "bottom-left");
-    view.ui.add(search, "top-right");
-
-    // Sketch widget
-    window.sketch = new Sketch({
-      view,
-      layer: sketchLayer,
-      creationMode: "single",
-      availableCreateTools: ["polygon","rectangle","circle"]
-    });
-
-    sketch.on("create", (event) => {
-      if(event.state === "complete") {
-        analyzeAOI(event.graphic.geometry);
-      }
-    });
-
-    // Coordinates display
-    view.on("pointer-move", (e) => {
-      const pt = view.toMap({ x: e.x, y: e.y });
-      if(pt) {
-        document.getElementById("bb-coords").textContent =
-          `${pt.longitude.toFixed(4)}°W  ${pt.latitude.toFixed(4)}°N`;
-      }
-    });
-
-    // Scale display
-    view.watch("scale", (s) => {
-      document.getElementById("bb-scale").textContent = Math.round(s).toLocaleString();
-    });
-
-    // Hide loading
-    setTimeout(() => {
-      document.getElementById("loading").style.display = "none";
-      loadLiveData();
-    }, 2800);
-  });
-
-  // ── LAYER TOGGLE ──
-  window.layerMap = {
-    risk: null,
-    firms: firmsLayer,
-    perimeters: perimLayer,
-    wui: null,
-    infra: null,
-    weather: null,
-    redFlag: redFlagLayer
-  };
-
-  window.toggleLayer = function(id) {
-    const toggle = document.getElementById("toggle-"+id);
-    const layer = window.layerMap[id];
-    if(!layer) { console.log("Layer not yet implemented:", id); return; }
-    const isOn = toggle.classList.contains("on");
-    if(isOn) { toggle.classList.remove("on"); layer.visible = false; }
-    else { toggle.classList.add("on"); layer.visible = true; }
-  };
-
-  // ── SKETCH TOOLS ──
-  window.activateTool = function(tool) {
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-'+tool).classList.add('active');
-
-    if(tool === "sketch") {
-      document.getElementById("sketch-toolbar").classList.add("visible");
-    } else if(tool === "buffer") {
-      document.getElementById("sketch-toolbar").classList.remove("visible");
-      alert("Buffer tool: Click on a fire point on the map to generate a buffer analysis.");
-    } else if(tool === "query") {
-      const county = prompt("Enter Colorado county name:", "Boulder");
-      if(county) queryByCounty(county);
-    }
-  };
-
-  window.sketchAction = function(type) {
-    if(type === "clear") {
-      sketchLayer.removeAll();
-      document.getElementById("stats-panel").classList.remove("visible");
-      return;
-    }
-    if(window.sketch) window.sketch.create(type);
-  };
-
-  window.clearTools = function() {
-    sketchLayer.removeAll();
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById("sketch-toolbar").classList.remove("visible");
-    document.getElementById("stats-panel").classList.remove("visible");
-  };
-
-  // ── AOI ANALYSIS ──
-  async function analyzeAOI(geometry) {
-    const statsPanel = document.getElementById("stats-panel");
-    const statsContent = document.getElementById("stats-content");
-    statsContent.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Analyzing area...</div>';
-    statsPanel.classList.add("visible");
-
-    try {
-      const areaKm2 = (geometryEngine.geodesicArea(geometry, "square-kilometers")).toFixed(1);
-
-      // Query fires in AOI
-      const firmsQ = firmsLayer.createQuery();
-      firmsQ.geometry = geometry;
-      firmsQ.spatialRelationship = "intersects";
-      firmsQ.returnCountOnly = true;
-      const firmsRes = await firmsLayer.queryFeatureCount(firmsQ);
-
-      const perimQ = perimLayer.createQuery();
-      perimQ.geometry = geometry;
-      perimQ.spatialRelationship = "intersects";
-      perimQ.returnCountOnly = true;
-      const perimRes = await perimLayer.queryFeatureCount(perimQ);
-
-      statsContent.innerHTML = `
-        <div class="stat-row"><span>Area (km²)</span><span class="stat-val">${areaKm2}</span></div>
-        <div class="stat-row"><span>Active Fire Detections</span><span class="stat-val">${firmsRes}</span></div>
-        <div class="stat-row"><span>Historic Perimeters</span><span class="stat-val">${perimRes}</span></div>
-        <div class="stat-row"><span>Projection</span><span class="stat-val">WGS84</span></div>
-      `;
-
-      window._lastGeometry = geometry;
-      window._lastStats = { areaKm2, firmsRes, perimRes };
-    } catch(e) {
-      statsContent.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Analysis complete. Check results panel.</div>';
-    }
-  }
-
-  // ── EXPORT AOI ──
-  window.exportAOI = function() {
-    if(!window._lastGeometry) return;
-    const geojson = {
-      type: "Feature",
-      geometry: {
-        type: "Polygon",
-        coordinates: [window._lastGeometry.rings[0]]
-      },
-      properties: window._lastStats || {}
     };
-    const blob = new Blob([JSON.stringify(geojson, null, 2)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "colorado_wildfire_aoi.geojson";
-    a.click(); URL.revokeObjectURL(url);
-  };
-
-  // ── QUERY BY COUNTY ──
-  window.queryByCounty = function(county) {
-    firmsLayer.definitionExpression = `County = '${county}'`;
-    perimLayer.definitionExpression = `state = 'CO'`;
-  };
-
-  // ── TAB SWITCHING ──
-  window.switchTab = function(tab) {
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-'+tab).classList.add('active');
-
-    if(tab === 'cameras') {
-      window.open('https://www.alertwildfire.org/?camera=axis-ColoradoFtCollins01', '_blank');
-    } else if(tab === 'download') {
-      showDownloadPanel();
-    }
-  };
-
-  window.switchRPanel = function(tab) {
-    document.querySelectorAll('.rpanel-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.rpanel-content').forEach(c => c.classList.remove('active'));
-    document.getElementById('rp-'+tab).classList.add('active');
-    document.getElementById('rpc-'+tab).classList.add('active');
-  };
-
-  // ── DOWNLOAD PANEL ──
-  window.showDownloadPanel = function() {
-    // Open NIFC download page in new tab
-    window.open('https://data-nifc.opendata.arcgis.com', '_blank');
-  };
-
-  // ── LIVE DATA ──
-  async function loadLiveData() {
-    try {
-      // NIFC Active Fires CO
-      const r1 = await fetch("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=POOState%3D'US-CO'&returnCountOnly=true&f=json");
-      const d1 = await r1.json();
-      const fires = d1.count || 0;
-      document.getElementById("kpi-fires").textContent = fires;
-
-      // FIRMS
-      const now = new Date();
-      const today = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
-      const r2 = await fetch(`https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=acq_date%3D'${today}'&geometry=-109.05%2C36.99%2C-102.04%2C41.00&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json`);
-      const d2 = await r2.json();
-      document.getElementById("kpi-firms").textContent = d2.count || "--";
-
-      // Alert level
-      const alertBadge = document.getElementById("alert-badge");
-      if(fires > 5) {
-        alertBadge.className = "alert-badge alert";
-        alertBadge.textContent = "🔴 ALERT";
-      } else {
-        alertBadge.className = "alert-badge normal";
-        alertBadge.textContent = "🟢 NORMAL";
-      }
-
-      // Weather
-      const r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.74&longitude=-104.98&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max&timezone=America/Denver&forecast_days=5");
-      const d3 = await r3.json();
-      const c = d3.current || {};
-      const toF = x => Math.round(x * 9/5 + 32);
-      const tF = toF(Math.round(c.temperature_2m || 0));
-      const hum = Math.round(c.relative_humidity_2m || 0);
-      const wind = Math.round(c.wind_speed_10m || 0);
-      const prec = Math.round(c.precipitation_probability || 0);
-
-      document.getElementById("kpi-temp").textContent = tF+"°F";
-      document.getElementById("kpi-wind").textContent = wind;
-      document.getElementById("rp-temp").textContent = tF+"°F";
-      document.getElementById("rp-hum").textContent = hum+"%";
-      document.getElementById("rp-wind").textContent = wind+" km/h";
-      document.getElementById("rp-prec").textContent = prec+"%";
-      document.getElementById("alert-detail").textContent = `Wind: ${wind} km/h · Humidity: ${hum}% · Precip: ${prec}%`;
-
-      // Forecast
-      const daily = d3.daily || {};
-      const days = ['Sun','Mon','Tue','Wed','Thu'];
-      const icos = ['☀️','⛅','☀️','⛅','☁️'];
-      document.getElementById("rp-forecast").innerHTML =
-        (daily.temperature_2m_max || []).slice(0,5).map((t,i) => `
-          <div style="text-align:center;flex:1;background:var(--bg-deep);border-radius:4px;padding:5px 2px;">
-            <div style="font-size:9px;color:var(--text-3);">${days[i]}</div>
-            <div style="font-size:14px;">${icos[i]}</div>
-            <div style="font-size:11px;font-weight:600;">${toF(Math.round(t))}°F</div>
-          </div>
-        `).join('');
-
-      // Timestamp
-      document.getElementById("timestamp").textContent =
-        new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
-
-    } catch(e) {
-      console.log("Data load error:", e);
-    }
+    downloadBlob(JSON.stringify(gj, null, 2), 'cwia_aoi.geojson', 'application/json');
+  } else if(format === 'csv') {
+    const rows = ['field,value'];
+    rows.push(`area_km2,${stats.areaKm2 || 'N/A'}`);
+    rows.push(`active_fires,${stats.firmsRes || 0}`);
+    rows.push(`historic_perimeters,${stats.perimRes || 0}`);
+    rows.push(`source,CWIA Portal`);
+    rows.push(`date,${new Date().toISOString()}`);
+    downloadBlob(rows.join('\n'), 'cwia_aoi_stats.csv', 'text/csv');
+  } else if(format === 'kml') {
+    const coords = geom.rings[0].map(p => p.join(',')).join(' ');
+    const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>CWIA Area of Interest</name>
+    <Placemark>
+      <name>AOI - ${stats.areaKm2 || '?'} km²</name>
+      <description>Active fires: ${stats.firmsRes || 0} | Historic perimeters: ${stats.perimRes || 0}</description>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>
+    </Placemark>
+  </Document>
+</kml>`;
+    downloadBlob(kml, 'cwia_aoi.kml', 'application/vnd.google-earth.kml+xml');
+  } else if(format === 'wkt') {
+    const coords = geom.rings[0].map(p => `${p[0]} ${p[1]}`).join(', ');
+    const wkt = `POLYGON ((${coords}))`;
+    downloadBlob(wkt, 'cwia_aoi.wkt', 'text/plain');
   }
 
-  // Loading messages
-  const msgs = [
-    "Initializing geospatial engine...",
-    "Loading ArcGIS Maps SDK 4.29...",
-    "Connecting to NASA FIRMS API...",
-    "Fetching NIFC incident data...",
-    "Loading LANDFIRE layers...",
-    "Portal ready."
-  ];
-  let mi = 0;
-  const iv = setInterval(() => {
-    if(++mi < msgs.length) document.getElementById("load-msg").textContent = msgs[mi];
-    else clearInterval(iv);
-  }, 450);
+  document.getElementById('aoi-msg').textContent = `✅ AOI exported as ${format.toUpperCase()}`;
+};
 
-  // Auto-refresh every 5 min
-  setInterval(loadLiveData, 300000);
+function downloadBlob(content, filename, mime) {
+  const blob = new Blob([content], {type: mime});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
-}); // end require
+function geojsonToKML(gj, name) {
+  const placemarks = (gj.features || []).slice(0, 500).map(f => {
+    const g = f.geometry || {};
+    const p = f.properties || {};
+    let geo = '';
+    if(g.type === 'Point') {
+      geo = `<Point><coordinates>${g.coordinates[0]},${g.coordinates[1]}</coordinates></Point>`;
+    } else if(g.type === 'Polygon') {
+      const coords = (g.coordinates[0] || []).map(c => c.join(',')).join(' ');
+      geo = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
+    }
+    const desc = Object.entries(p).slice(0,5).map(([k,v]) => `${k}: ${v}`).join('; ');
+    return `<Placemark><name>${p.IncidentName || p.name || name}</name><description>${desc}</description>${geo}</Placemark>`;
+  }).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document><name>CWIA - ${name}</name>${placemarks}</Document>
+</kml>`;
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+window.currentTab = 'analytics';
+
+window.switchTab = function(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+
+  // Hide all panels
+  document.getElementById('map-container').classList.remove('active');
+  document.getElementById('embed-container').classList.remove('active');
+  document.getElementById('apps-panel').classList.remove('active');
+  document.getElementById('alerts-panel').classList.remove('active');
+  document.getElementById('download-panel').classList.remove('active');
+
+  window.currentTab = tab;
+
+  if(tab === 'map') {
+    document.getElementById('map-container').classList.add('active');
+    document.getElementById('layer-section').style.display = '';
+    document.getElementById('tools-section').style.display = '';
+  } else if(tab === 'analytics') {
+    document.getElementById('embed-container').classList.add('active');
+    document.getElementById('layer-section').style.display = 'none';
+    document.getElementById('tools-section').style.display = 'none';
+  } else if(tab === 'apps') {
+    document.getElementById('apps-panel').classList.add('active');
+    document.getElementById('layer-section').style.display = 'none';
+    document.getElementById('tools-section').style.display = 'none';
+  } else if(tab === 'alerts') {
+    document.getElementById('alerts-panel').classList.add('active');
+    document.getElementById('layer-section').style.display = 'none';
+    document.getElementById('tools-section').style.display = 'none';
+  } else if(tab === 'download') {
+    document.getElementById('download-panel').classList.add('active');
+    document.getElementById('layer-section').style.display = 'none';
+    document.getElementById('tools-section').style.display = 'none';
+  } else if(tab === 'cameras') {
+    window.open('https://www.alertwildfire.org/?camera=axis-ColoradoFtCollins01', '_blank');
+    // Stay on current tab
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-'+window.currentTab).classList.add('active');
+    const prevPanel = window.currentTab;
+    document.getElementById(prevPanel === 'map' ? 'map-container' :
+      prevPanel === 'analytics' ? 'embed-container' :
+      prevPanel + '-panel').classList.add('active');
+    return;
+  }
+};
+
+// Load embed for apps
+window.loadEmbed = function(url, tab) {
+  document.getElementById('embed-loader').classList.remove('hidden');
+  document.getElementById('embed-iframe').src = url;
+  switchTab(tab || 'analytics');
+};
+
+window.switchRPanel = function(tab) {
+  document.querySelectorAll('.rpanel-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rpanel-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('rp-'+tab).classList.add('active');
+  document.getElementById('rpc-'+tab).classList.add('active');
+};
+
+// Init: hide layer/tools for analytics tab
+document.getElementById('layer-section').style.display = 'none';
+document.getElementById('tools-section').style.display = 'none';
+
+// ── ARCGIS MAP (loaded lazily when map tab opened) ───────────────────────────
+let mapInitialized = false;
+let sketchWidget, firmsLayer, perimLayer, wfigsLayer, redFlagLayer, sketchLayer;
+
+function initMap() {
+  if(mapInitialized) return;
+  mapInitialized = true;
+
+  require([
+    "esri/Map", "esri/views/MapView", "esri/layers/FeatureLayer",
+    "esri/widgets/Sketch", "esri/widgets/ScaleBar", "esri/widgets/Home",
+    "esri/widgets/Compass", "esri/widgets/Search",
+    "esri/layers/GraphicsLayer", "esri/geometry/geometryEngine", "esri/Graphic"
+  ], function(Map, MapView, FeatureLayer, Sketch, ScaleBar, Home, Compass, Search, GraphicsLayer, geometryEngine, Graphic) {
+
+    sketchLayer = new GraphicsLayer();
+
+    firmsLayer = new FeatureLayer({
+      url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0",
+      id: "firms",
+      renderer: { type:"simple", symbol:{type:"simple-marker",color:[255,82,82,0.85],outline:{color:[255,23,23],width:0.5},size:8} }
+    });
+
+    perimLayer = new FeatureLayer({
+      url: "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/Historic_Geomac_Perimeters_Combined_2000_2018/FeatureServer/0",
+      id: "perimeters",
+      definitionExpression: "state = 'CO'",
+      renderer: { type:"simple", symbol:{type:"simple-fill",color:[255,140,66,0.25],outline:{color:[255,140,66],width:1.5}} }
+    });
+
+    wfigsLayer = new FeatureLayer({
+      url: "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0",
+      id: "wfigs",
+      renderer: { type:"simple", symbol:{type:"simple-fill",color:[255,23,23,0.3],outline:{color:[255,23,23],width:2}} }
+    });
+
+    redFlagLayer = new FeatureLayer({
+      url: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/RedFlagWarning/FeatureServer/0",
+      id: "redFlag",
+      renderer: { type:"simple", symbol:{type:"simple-fill",color:[255,0,0,0.15],outline:{color:[224,64,251,1],width:2}} }
+    });
+
+    const map = new Map({ basemap:"dark-gray-vector", layers:[perimLayer, wfigsLayer, firmsLayer, redFlagLayer, sketchLayer] });
+    const view = new MapView({ container:"viewDiv", map, center:[-105.5,39.0], zoom:7, ui:{components:[]} });
+
+    view.when(() => {
+      view.ui.add(new Home({view}), "top-right");
+      view.ui.add(new Compass({view}), "top-right");
+      view.ui.add(new ScaleBar({view, unit:"metric"}), "bottom-left");
+
+      sketchWidget = new Sketch({ view, layer:sketchLayer, creationMode:"single", availableCreateTools:["polygon","rectangle","circle"] });
+      sketchWidget.on("create", e => { if(e.state==="complete") analyzeAOI(e.graphic.geometry, geometryEngine, firmsLayer, perimLayer); });
+
+      view.on("pointer-move", e => {
+        const pt = view.toMap({x:e.x,y:e.y});
+        if(pt) document.getElementById("bb-coords").textContent = `${Math.abs(pt.longitude).toFixed(4)}°W  ${pt.latitude.toFixed(4)}°N`;
+      });
+      view.watch("scale", s => { document.getElementById("bb-scale").textContent = Math.round(s).toLocaleString(); });
+    });
+
+    window.layerMap = { firms:firmsLayer, perimeters:perimLayer, wfigs:wfigsLayer, redFlag:redFlagLayer };
+  });
+}
+
+window.toggleLayer = function(id) {
+  const toggle = document.getElementById("toggle-"+id);
+  const layer = window.layerMap && window.layerMap[id];
+  if(!layer) return;
+  const isOn = toggle.classList.contains("on");
+  toggle.classList.toggle("on", !isOn);
+  layer.visible = !isOn;
+};
+
+window.activateTool = function(tool) {
+  if(window.currentTab !== 'map') { switchTab('map'); initMap(); return; }
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-'+tool).classList.add('active');
+  if(tool === "sketch") {
+    document.getElementById("sketch-toolbar").classList.add("visible");
+  } else if(tool === "query") {
+    const county = prompt("Enter Colorado county name:", "Boulder");
+    if(county && window.layerMap) {
+      window.layerMap.firms && (window.layerMap.firms.definitionExpression = `County = '${county}'`);
+    }
+  }
+};
+
+window.sketchAction = function(type) {
+  if(type === "clear") { sketchLayer && sketchLayer.removeAll(); document.getElementById("stats-panel").classList.remove("visible"); return; }
+  if(sketchWidget) sketchWidget.create(type);
+};
+
+window.clearTools = function() {
+  sketchLayer && sketchLayer.removeAll();
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById("sketch-toolbar").classList.remove("visible");
+  document.getElementById("stats-panel").classList.remove("visible");
+};
+
+window.showAOIExport = function() {
+  switchTab('download');
+};
+
+async function analyzeAOI(geometry, geometryEngine, firmsLayer, perimLayer) {
+  const statsPanel = document.getElementById("stats-panel");
+  const statsContent = document.getElementById("stats-content");
+  statsContent.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Analyzing area...</div>';
+  statsPanel.classList.add("visible");
+  try {
+    const areaKm2 = Math.abs(geometryEngine.geodesicArea(geometry, "square-kilometers")).toFixed(1);
+    const fQ = firmsLayer.createQuery(); fQ.geometry = geometry; fQ.spatialRelationship = "intersects"; fQ.returnCountOnly = true;
+    const fR = await firmsLayer.queryFeatureCount(fQ);
+    const pQ = perimLayer.createQuery(); pQ.geometry = geometry; pQ.spatialRelationship = "intersects"; pQ.returnCountOnly = true;
+    const pR = await perimLayer.queryFeatureCount(pQ);
+    statsContent.innerHTML = `
+      <div class="stat-row"><span>Area (km²)</span><span class="stat-val">${areaKm2}</span></div>
+      <div class="stat-row"><span>Active Fire Detections</span><span class="stat-val">${fR}</span></div>
+      <div class="stat-row"><span>Historic Perimeters</span><span class="stat-val">${pR}</span></div>
+    `;
+    window._lastGeometry = geometry;
+    window._lastStats = { areaKm2, firmsRes:fR, perimRes:pR };
+    document.getElementById('aoi-msg').textContent = `✅ AOI ready for export — ${areaKm2} km²`;
+  } catch(e) {
+    statsContent.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Analysis complete.</div>';
+  }
+}
+
+// ── LIVE DATA ──────────────────────────────────────────────────────────────────
+async function loadLiveData() {
+  try {
+    // Active fires CO
+    const r1 = await fetch("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=POOState%3D'US-CO'&returnCountOnly=true&f=json");
+    const d1 = await r1.json();
+    const fires = d1.count || 0;
+    document.getElementById("kpi-fires").textContent = fires;
+    document.getElementById("alert-badge").className = fires > 5 ? "alert-badge alert" : "alert-badge normal";
+    document.getElementById("alert-badge").textContent = fires > 5 ? "🔴 ALERT" : "🟢 NORMAL";
+
+    // FIRMS
+    const now = new Date();
+    const today = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
+    const r2 = await fetch(`https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=acq_date%3D'${today}'&geometry=-109.05%2C36.99%2C-102.04%2C41.00&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json`);
+    const d2 = await r2.json();
+    document.getElementById("kpi-firms").textContent = d2.count ?? "--";
+
+    // Weather
+    const r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.74&longitude=-104.98&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max,weathercode&timezone=America/Denver&forecast_days=5");
+    const d3 = await r3.json();
+    const c = d3.current || {};
+    const toF = x => Math.round(x*9/5+32);
+    const tF = toF(Math.round(c.temperature_2m||0));
+    const hum = Math.round(c.relative_humidity_2m||0);
+    const wind = Math.round(c.wind_speed_10m||0);
+    const prec = Math.round(c.precipitation_probability||0);
+
+    // Update all weather displays
+    ['kpi-temp','al-temp'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=tF+"°F"; });
+    ['kpi-wind','al-wind'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=wind; });
+    ['rp-temp',''].forEach(id => { if(!id) return; const el=document.getElementById(id); if(el) el.textContent=tF+"°F"; });
+    document.getElementById("rp-temp").textContent=tF+"°F";
+    document.getElementById("rp-hum").textContent=hum+"%";
+    document.getElementById("rp-wind").textContent=wind+" km/h";
+    document.getElementById("rp-prec").textContent=prec+"%";
+    document.getElementById("al-hum").textContent=hum+"%";
+    document.getElementById("al-wind").textContent=wind+" km/h";
+    document.getElementById("al-prec").textContent=prec+"%";
+    document.getElementById("al-temp").textContent=tF+"°F";
+    document.getElementById("alert-detail").textContent=`Wind: ${wind} km/h · Humidity: ${hum}% · Precip: ${prec}%`;
+
+    // Red flag status
+    const rfEl = document.getElementById('rf-text');
+    if(prec < 15 && wind > 30 && hum < 15) {
+      rfEl.textContent = '🔴 RED FLAG CONDITIONS ACTIVE — High wind, low humidity';
+      rfEl.style.color = '#ff5252';
+    } else {
+      rfEl.textContent = '🟢 No active Red Flag conditions at KDEN';
+      rfEl.style.color = '#69f0ae';
+    }
+
+    // Incidents list
+    const incEl = document.getElementById('incidents-list');
+    if(fires === 0) {
+      incEl.innerHTML = '<div style="color:#69f0ae;font-size:12px;">✅ No active incidents in Colorado</div>';
+    } else {
+      incEl.innerHTML = `<div style="color:#ff9800;font-size:12px;">⚠️ ${fires} active incident${fires>1?'s':''} in Colorado · Source: NIFC/WFIGS</div><div style="margin-top:8px;"><a href="https://inciweb.wildfire.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">View on InciWeb →</a></div>`;
+    }
+
+    // Forecast
+    const daily = d3.daily || {};
+    const wmos = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
+    const getIco = c => wmos[c] || '🌤️';
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const forecastHtml = (daily.temperature_2m_max||[]).slice(0,5).map((t,i) => {
+      const d = new Date(); d.setDate(d.getDate()+i);
+      return `<div style="text-align:center;flex:1;background:var(--bg-deep);border-radius:4px;padding:5px 2px;">
+        <div style="font-size:9px;color:var(--text-3);">${days[d.getDay()]}</div>
+        <div style="font-size:14px;">${getIco(daily.weathercode?.[i])}</div>
+        <div style="font-size:11px;font-weight:600;">${toF(Math.round(t))}°F</div>
+        <div style="font-size:9px;color:#4fc3f7;">${daily.precipitation_probability_max?.[i]||0}%</div>
+      </div>`;
+    }).join('');
+    document.getElementById("rp-forecast").innerHTML = forecastHtml;
+    document.getElementById("al-forecast").innerHTML = forecastHtml;
+
+    document.getElementById("timestamp").textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
+  } catch(e) {
+    console.log("Data load error:", e);
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const msgs = [
+  "Initializing geospatial engine...",
+  "Loading ArcGIS Maps SDK 4.29...",
+  "Connecting to NASA FIRMS API...",
+  "Fetching NIFC incident data...",
+  "Loading CWIA services...",
+  "Portal ready."
+];
+let mi = 0;
+const iv = setInterval(() => {
+  if(++mi < msgs.length) document.getElementById("load-msg").textContent = msgs[mi];
+  else clearInterval(iv);
+}, 450);
+
+setTimeout(() => {
+  document.getElementById("loading").style.display = "none";
+  loadLiveData();
+}, 2800);
+
+// Map is initialized lazily when user clicks Map Viewer tab
+const origSwitchTab = window.switchTab;
+window.switchTab = function(tab) {
+  if(tab === 'map' && !mapInitialized) initMap();
+  origSwitchTab(tab);
+};
+
+setInterval(loadLiveData, 300000);
 </script>
 </body>
 </html>
