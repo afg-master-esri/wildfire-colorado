@@ -385,7 +385,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
     <div class="nav-tab" onclick="switchTab('apps')" id="tab-apps"><span class="tab-icon">🔗</span> Applications</div>
     <div class="nav-tab" onclick="switchTab('alerts')" id="tab-alerts"><span class="tab-icon">🚨</span> Alerts</div>
     <div class="nav-tab" onclick="switchTab('download')" id="tab-download"><span class="tab-icon">⬇️</span> Download</div>
-    <div class="nav-tab" onclick="switchTab('cameras')" id="tab-cameras"><span class="tab-icon">📷</span> Cameras</div>
   </div>
 
   <div id="topbar-right">
@@ -796,7 +795,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
         <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" target="_blank" class="dl-btn">📖 StoryMap <span class="dl-ext">→</span></a>
         <a href="https://www.arcgis.com/apps/dashboards/d9a57005e6f84e198e21d8c1c4ecf065" target="_blank" class="dl-btn">🖥️ Dashboard <span class="dl-ext">→</span></a>
         <a href="https://cwia-colorado-mastergis.hub.arcgis.com" target="_blank" class="dl-btn">🌐 Hub Site <span class="dl-ext">→</span></a>
-        <a href="https://www.alertwildfire.org" target="_blank" class="dl-btn">📷 Live Cameras <span class="dl-ext">→</span></a>
       </div>
     </div>
 
@@ -1042,17 +1040,7 @@ window.switchTab = function(tab) {
     document.getElementById('download-panel').classList.add('active');
     document.getElementById('layer-section').style.display = 'none';
     document.getElementById('tools-section').style.display = 'none';
-  } else if(tab === 'cameras') {
-    window.open('https://www.alertwildfire.org/?camera=axis-ColoradoFtCollins01', '_blank');
-    // Stay on current tab
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-'+window.currentTab).classList.add('active');
-    const prevPanel = window.currentTab;
-    document.getElementById(prevPanel === 'map' ? 'map-container' :
-      prevPanel === 'analytics' ? 'embed-container' :
-      prevPanel + '-panel').classList.add('active');
-    return;
-  }
+   }
 };
 
 // Load embed for apps
