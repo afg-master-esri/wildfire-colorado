@@ -974,24 +974,58 @@ function downloadBlob(content, filename, mime) {
   URL.revokeObjectURL(a.href);
 }
 
+function escapeXml(str) {
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+}
+
 function geojsonToKML(gj, name) {
   const placemarks = (gj.features || []).slice(0, 500).map(f => {
     const g = f.geometry || {};
     const p = f.properties || {};
     let geo = '';
     if(g.type === 'Point') {
-      geo = `<Point><coordinates>${g.coordinates[0]},${g.coordinates[1]}</coordinates></Point>`;
+      const lon = parseFloat(g.coordinates[0]).toFixed(6);
+      const lat = parseFloat(g.coordinates[1]).toFixed(6);
+      geo = `<Point><coordinates>${lon},${lat},0</coordinates></Point>`;
     } else if(g.type === 'Polygon') {
-      const coords = (g.coordinates[0] || []).map(c => c.join(',')).join(' ');
+      const coords = (g.coordinates[0] || []).map(c =>
+        `${parseFloat(c[0]).toFixed(6)},${parseFloat(c[1]).toFixed(6)},0`
+      ).join(' ');
       geo = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
+    } else if(g.type === 'MultiPolygon') {
+      const outer = ((g.coordinates[0] || [])[0] || []).map(c =>
+        `${parseFloat(c[0]).toFixed(6)},${parseFloat(c[1]).toFixed(6)},0`
+      ).join(' ');
+      geo = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${outer}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
+    } else if(g.type === 'LineString') {
+      const coords = (g.coordinates || []).map(c =>
+        `${parseFloat(c[0]).toFixed(6)},${parseFloat(c[1]).toFixed(6)},0`
+      ).join(' ');
+      geo = `<LineString><coordinates>${coords}</coordinates></LineString>`;
     }
-    const desc = Object.entries(p).slice(0,5).map(([k,v]) => `${k}: ${v}`).join('; ');
-    return `<Placemark><name>${p.IncidentName || p.name || name}</name><description>${desc}</description>${geo}</Placemark>`;
+    const featName = escapeXml(p.IncidentName || p.name || p.NAME || p.GACGName || name);
+    const desc = escapeXml(
+      Object.entries(p).slice(0,8)
+        .filter(([k,v]) => v !== null && v !== undefined)
+        .map(([k,v]) => `${k}: ${v}`).join(' | ')
+    );
+    return `<Placemark><name>${featName}</name><description><![CDATA[${desc}]]></description>${geo}</Placemark>`;
   }).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
-<Document><name>CWIA - ${name}</name>${placemarks}</Document>
+<Document>
+  <name>CWIA - ${escapeXml(name)}</name>
+  <description>Colorado Wildfire Intelligence Agency · Master GIS · Esri España 2025-2026</description>
+  ${placemarks}
+</Document>
 </kml>`;
 }
 
