@@ -381,7 +381,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 
   <div id="nav-tabs">
     <div class="nav-tab" onclick="switchTab('map')" id="tab-map"><span class="tab-icon">🗺️</span> Map Viewer</div>
-    <div class="nav-tab active" onclick="switchTab('analytics')" id="tab-analytics"><span class="tab-icon">📊</span> Analytics</div>
     <div class="nav-tab" onclick="switchTab('apps')" id="tab-apps"><span class="tab-icon">🔗</span> Applications</div>
     <div class="nav-tab" onclick="switchTab('alerts')" id="tab-alerts"><span class="tab-icon">🚨</span> Alerts</div>
     <div class="nav-tab" onclick="switchTab('download')" id="tab-download"><span class="tab-icon">⬇️</span> Download</div>
@@ -491,11 +490,11 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
     </div>
   </div>
 
-  <!-- ANALYTICS EMBED (Experience Builder) -->
+  <!-- EXPERIENCE BUILDER EMBED (default view) -->
   <div id="embed-container" class="active">
     <div class="embed-loading" id="embed-loader">
       <div class="embed-spinner"></div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);">Loading Wildfire Analytics...</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);">Loading Wildfire Risk Index...</div>
     </div>
     <iframe
       id="embed-iframe"
@@ -512,7 +511,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div style="font-size:11px;color:var(--text-3);">Click any application to open it in this viewer or in a new tab</div>
     </div>
 
-    <div class="app-card" onclick="loadEmbed('https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8','analytics')">
+    <div class="app-card" onclick="window.open('https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8','_blank')">
       <div class="app-card-icon">📊</div>
       <div style="flex:1;">
         <div class="app-card-title">Wildfire Risk Index</div>
@@ -522,7 +521,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div class="app-card-badge">LIVE</div>
     </div>
 
-    <div class="app-card" onclick="loadEmbed('https://www.arcgis.com/apps/dashboards/d9a57005e6f84e198e21d8c1c4ecf065','analytics')">
+    <div class="app-card" onclick="window.open('https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43','_blank')">
       <div class="app-card-icon">🖥️</div>
       <div style="flex:1;">
         <div class="app-card-title">Operations Center</div>
@@ -532,7 +531,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div class="app-card-badge">LIVE</div>
     </div>
 
-    <div class="app-card" onclick="loadEmbed('https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba','analytics')">
+    <div class="app-card" onclick="window.open('https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba','_blank')">
       <div class="app-card-icon">📖</div>
       <div style="flex:1;">
         <div class="app-card-title">Wildfire Intelligence Atlas</div>
@@ -542,17 +541,9 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div class="app-card-badge">PUBLIC</div>
     </div>
 
-    <div class="app-card" onclick="window.open('https://www.arcgis.com/home/item.html?id=fc8fb94ac1a040cb98d5f10fcef7c7d8','_blank')">
-      <div class="app-card-icon">🏕️</div>
-      <div style="flex:1;">
-        <div class="app-card-title">Field Operations Map</div>
-        <div class="app-card-desc">Offline-capable · 8 operational layers · Fire detections · RAWS weather · Red Flag warnings</div>
-        <div class="app-card-tool">Field Maps · ArcGIS Online</div>
-      </div>
-      <div class="app-card-badge">FIELD</div>
-    </div>
 
-    <div class="app-card" onclick="loadEmbed('https://cwia-colorado-mastergis.hub.arcgis.com','analytics')">
+
+    <div class="app-card" onclick="window.open('https://cwia-colorado-mastergis.hub.arcgis.com','_blank')">
       <div class="app-card-icon">🌐</div>
       <div style="flex:1;">
         <div class="app-card-title">CWIA Hub Site</div>
@@ -793,7 +784,7 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       <div>
         <div class="panel-title">Quick Links</div>
         <a href="https://storymaps.arcgis.com/stories/d6d5507d84b04958bca9567b02d484ba" target="_blank" class="dl-btn">📖 StoryMap <span class="dl-ext">→</span></a>
-        <a href="https://www.arcgis.com/apps/dashboards/d9a57005e6f84e198e21d8c1c4ecf065" target="_blank" class="dl-btn">🖥️ Dashboard <span class="dl-ext">→</span></a>
+        <a href="https://mastergis.maps.arcgis.com/apps/dashboards/d9a57005f5c24740a031d7cd4c591a43" target="_blank" target="_blank" class="dl-btn">🖥️ Dashboard <span class="dl-ext">→</span></a>
         <a href="https://cwia-colorado-mastergis.hub.arcgis.com" target="_blank" class="dl-btn">🌐 Hub Site <span class="dl-ext">→</span></a>
       </div>
     </div>
@@ -1005,7 +996,7 @@ function geojsonToKML(gj, name) {
 }
 
 // ── TAB SWITCHING ─────────────────────────────────────────────────────────────
-window.currentTab = 'analytics';
+window.currentTab = 'embed';
 
 window.switchTab = function(tab) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1017,6 +1008,14 @@ window.switchTab = function(tab) {
   document.getElementById('apps-panel').classList.remove('active');
   document.getElementById('alerts-panel').classList.remove('active');
   document.getElementById('download-panel').classList.remove('active');
+  
+  // Show embed by default if no other panel selected
+  if(!['map','apps','alerts','download'].includes(tab)) {
+    document.getElementById('embed-container').classList.add('active');
+    document.getElementById('layer-section').style.display = 'none';
+    document.getElementById('tools-section').style.display = 'none';
+    return;
+  }
 
   window.currentTab = tab;
 
@@ -1024,10 +1023,6 @@ window.switchTab = function(tab) {
     document.getElementById('map-container').classList.add('active');
     document.getElementById('layer-section').style.display = '';
     document.getElementById('tools-section').style.display = '';
-  } else if(tab === 'analytics') {
-    document.getElementById('embed-container').classList.add('active');
-    document.getElementById('layer-section').style.display = 'none';
-    document.getElementById('tools-section').style.display = 'none';
   } else if(tab === 'apps') {
     document.getElementById('apps-panel').classList.add('active');
     document.getElementById('layer-section').style.display = 'none';
@@ -1057,7 +1052,7 @@ window.switchRPanel = function(tab) {
   document.getElementById('rpc-'+tab).classList.add('active');
 };
 
-// Init: hide layer/tools for analytics tab
+// Init: hide layer/tools — embed is default view
 document.getElementById('layer-section').style.display = 'none';
 document.getElementById('tools-section').style.display = 'none';
 
@@ -1295,6 +1290,8 @@ setTimeout(() => {
 const origSwitchTab = window.switchTab;
 window.switchTab = function(tab) {
   if(tab === 'map' && !mapInitialized) initMap();
+  if(tab !== 'map') document.getElementById('embed-container').classList.remove('active');
+  if(tab === 'map') document.getElementById('embed-container').classList.remove('active');
   origSwitchTab(tab);
 };
 
