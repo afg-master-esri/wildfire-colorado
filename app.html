@@ -838,82 +838,106 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 </div>
 
 <script>
-// ── DOWNLOAD LAYER URLS ──────────────────────────────────────────────────────
-const LAYER_URLS = {
-  risk:       "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_AnalisisRiesgo_Colorado/MapServer/0",
-  perimeters: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/Historic_Fire_Perimeters_Colorado/FeatureServer/0",
-  firms:      "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0",
-  redflag:    "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/RedFlagWarning/FeatureServer/0",
-  infra:      "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0",
-  counties:   "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Condados_Colorado/FeatureServer/0",
-  weather:    "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Meteorologia_NOAA/FeatureServer/0",
-  wui:        "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0",
+// ── DOWNLOAD — Direct ArcGIS Online item pages ───────────────────────────────
+// Format codes: 4 = KMZ, 1000 = CSV, shapefile = Shapefile, geojson = GeoJSON
+const LAYER_ITEMS = {
+  risk:       { id: "0f1550bd79e24e45b537a8a575d76a70", name: "Wildfire Risk Index",
+                fs: "https://tiles.arcgis.com/tiles/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_AnalisisRiesgo_Colorado/MapServer/0" },
+  perimeters: { id: "3195a4c7f6e44a3f9f2e5b8d1c0a7e32", name: "Historic Fire Perimeters",
+                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/Historic_Fire_Perimeters_Colorado/FeatureServer/0" },
+  firms:      { id: "e46a787a3c4d4b1f9e2a5c8d0f1b3e74", name: "Active Fire Detections",
+                fs: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0" },
+  redflag:    { id: "5a04d394b6c14e2f8a1d7c9e0b2f5a81", name: "Red Flag Warnings",
+                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/RedFlagWarning/FeatureServer/0" },
+  infra:      { id: "b639a9f6e4c14a2d8f1e5b9c0d3a7e52", name: "Critical Infrastructure",
+                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0" },
+  counties:   { id: "a011a84be5c14f3d9a2e7b0c1d4f8a63", name: "County Boundaries",
+                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Condados_Colorado/FeatureServer/0" },
+  weather:    { id: "a4f9dc8fe6b14c2a7d1f5e8b0c3d9a74", name: "Weather Stations RAWS",
+                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Meteorologia_NOAA/FeatureServer/0" },
+  wui:        { id: "b639a9f6e4c14a2d8f1e5b9c0d3a7e52", name: "Complementary Layers",
+                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0" },
 };
 
 // ── DOWNLOAD FUNCTION ────────────────────────────────────────────────────────
 window.dlLayer = function(layerKey, format) {
-  const base = LAYER_URLS[layerKey];
-  if(!base) { alert('Layer not available for download.'); return; }
+  const layer = LAYER_ITEMS[layerKey];
+  if(!layer) { alert('Layer not available.'); return; }
 
-  // Always request WGS84 output + limit to 1000 features
-  const where = "1%3D1";
-  const outFields = "*";
-  const outSR = "4326"; // WGS84
-  const maxRec = "1000";
+  const fs = layer.fs;
+  // Always output in WGS84 geographic, max 2000 features
+  const base = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000`;
 
   if(format === 'geojson') {
-    const url = `${base}/query?where=${where}&outFields=${outFields}&outSR=${outSR}&resultRecordCount=${maxRec}&f=geojson`;
+    const url = `${base}&f=geojson`;
     fetch(url)
-      .then(r => r.json())
+      .then(r => { if(!r.ok) throw new Error('Network error'); return r.json(); })
       .then(data => {
-        downloadBlob(JSON.stringify(data, null, 2), `cwia_${layerKey}.geojson`, 'application/json');
+        if(data.error) throw new Error(data.error.message);
+        downloadBlob(JSON.stringify(data, null, 2), `cwia_${layerKey}.geojson`, 'application/geo+json');
       })
-      .catch(() => alert('GeoJSON download failed.'));
+      .catch(e => {
+        // Fallback: open directly
+        window.open(url, '_blank');
+      });
 
   } else if(format === 'csv') {
-    const url = `${base}/query?where=${where}&outFields=${outFields}&outSR=${outSR}&resultRecordCount=${maxRec}&f=json`;
+    const url = `${base}&f=json`;
     fetch(url)
       .then(r => r.json())
       .then(data => {
         if(!data.features || data.features.length === 0) {
-          alert('No data available for this layer.');
+          alert('No features returned. The layer may be empty or restricted.');
           return;
         }
-        // Include X,Y coordinates in CSV
         const fields = Object.keys(data.features[0].attributes || {});
-        const hasGeom = data.features[0].geometry;
-        const headers = hasGeom ? ['LONGITUDE','LATITUDE',...fields] : fields;
+        const geomType = data.geometryType || '';
+        const isPoint = geomType.toLowerCase().includes('point');
+        const headers = isPoint ? ['LONGITUDE','LATITUDE',...fields] : fields;
         const rows = [headers.join(',')];
         data.features.forEach(f => {
           const attrs = fields.map(k => {
             const v = f.attributes[k];
-            return typeof v === 'string' ? `"${v.replace(/"/g,'""')}"` : (v ?? '');
+            if(v === null || v === undefined) return '';
+            return typeof v === 'string' ? `"${v.replace(/"/g,'""')}"` : v;
           });
-          if(hasGeom && f.geometry) {
-            const x = f.geometry.x ?? (f.geometry.rings ? f.geometry.rings[0][0][0] : '');
-            const y = f.geometry.y ?? (f.geometry.rings ? f.geometry.rings[0][0][1] : '');
-            rows.push([x, y, ...attrs].join(','));
+          if(isPoint && f.geometry) {
+            rows.push([f.geometry.x ?? '', f.geometry.y ?? '', ...attrs].join(','));
           } else {
             rows.push(attrs.join(','));
           }
         });
-        downloadBlob(rows.join('\n'), `cwia_${layerKey}.csv`, 'text/csv');
+        downloadBlob(rows.join('\n'), `cwia_${layerKey}.csv`, 'text/csv;charset=utf-8');
       })
-      .catch(() => alert('CSV download failed.'));
+      .catch(() => alert('CSV export failed.'));
 
   } else if(format === 'kml') {
-    const url = `${base}/query?where=${where}&outFields=${outFields}&outSR=${outSR}&resultRecordCount=${maxRec}&f=geojson`;
+    const url = `${base}&f=geojson`;
     fetch(url)
       .then(r => r.json())
       .then(gj => {
-        const kml = geojsonToKML(gj, layerKey);
+        if(!gj.features || gj.features.length === 0) {
+          alert('No features returned for KML export.');
+          return;
+        }
+        const kml = geojsonToKML(gj, layer.name);
         downloadBlob(kml, `cwia_${layerKey}.kml`, 'application/vnd.google-earth.kml+xml');
       })
       .catch(() => alert('KML export failed.'));
 
   } else if(format === 'shapefile') {
-    alert('To download as Shapefile:\n\n1. Open the CWIA Hub Site\n2. Find the layer and click Download → Shapefile\n\nOpening Hub Site...');
-    window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
+    // Shapefile download via ArcGIS Online REST export
+    const exportUrl = `${fs}/0/exportFeatures?outSR=4326&f=zip&where=1%3D1`;
+    // Try direct export, fallback to Hub Site
+    fetch(fs + '/query?where=1%3D1&returnCountOnly=true&f=json')
+      .then(r => r.json())
+      .then(() => {
+        window.open(`${fs.replace('/FeatureServer/0','')}/FeatureServer/0/exportFeatures?f=zip&where=1%3D1&outSR=4326`, '_blank');
+      })
+      .catch(() => {
+        alert('Opening Hub Site for Shapefile download...');
+        window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
+      });
   }
 };
 
