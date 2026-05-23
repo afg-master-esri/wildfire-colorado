@@ -855,64 +855,66 @@ window.dlLayer = function(layerKey, format) {
   const base = LAYER_URLS[layerKey];
   if(!base) { alert('Layer not available for download.'); return; }
 
-  let url;
+  // Always request WGS84 output + limit to 1000 features
   const where = "1%3D1";
   const outFields = "*";
+  const outSR = "4326"; // WGS84
+  const maxRec = "1000";
 
   if(format === 'geojson') {
-    url = `${base}/query?where=${where}&outFields=${outFields}&f=geojson`;
+    const url = `${base}/query?where=${where}&outFields=${outFields}&outSR=${outSR}&resultRecordCount=${maxRec}&f=geojson`;
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        downloadBlob(JSON.stringify(data, null, 2), `cwia_${layerKey}.geojson`, 'application/json');
+      })
+      .catch(() => alert('GeoJSON download failed.'));
+
   } else if(format === 'csv') {
-    url = `${base}/query?where=${where}&outFields=${outFields}&f=json`;
-    // Fetch and convert to CSV
+    const url = `${base}/query?where=${where}&outFields=${outFields}&outSR=${outSR}&resultRecordCount=${maxRec}&f=json`;
     fetch(url)
       .then(r => r.json())
       .then(data => {
         if(!data.features || data.features.length === 0) {
-          alert('No data available for this layer in the current extent.');
+          alert('No data available for this layer.');
           return;
         }
+        // Include X,Y coordinates in CSV
         const fields = Object.keys(data.features[0].attributes || {});
-        const rows = [fields.join(',')];
+        const hasGeom = data.features[0].geometry;
+        const headers = hasGeom ? ['LONGITUDE','LATITUDE',...fields] : fields;
+        const rows = [headers.join(',')];
         data.features.forEach(f => {
-          const row = fields.map(k => {
+          const attrs = fields.map(k => {
             const v = f.attributes[k];
             return typeof v === 'string' ? `"${v.replace(/"/g,'""')}"` : (v ?? '');
           });
-          rows.push(row.join(','));
+          if(hasGeom && f.geometry) {
+            const x = f.geometry.x ?? (f.geometry.rings ? f.geometry.rings[0][0][0] : '');
+            const y = f.geometry.y ?? (f.geometry.rings ? f.geometry.rings[0][0][1] : '');
+            rows.push([x, y, ...attrs].join(','));
+          } else {
+            rows.push(attrs.join(','));
+          }
         });
         downloadBlob(rows.join('\n'), `cwia_${layerKey}.csv`, 'text/csv');
       })
-      .catch(() => alert('Download failed. Please try again.'));
-    return;
+      .catch(() => alert('CSV download failed.'));
+
   } else if(format === 'kml') {
-    // Convert via GeoJSON then to KML
-    const gjUrl = `${base}/query?where=${where}&outFields=${outFields}&f=geojson`;
-    fetch(gjUrl)
+    const url = `${base}/query?where=${where}&outFields=${outFields}&outSR=${outSR}&resultRecordCount=${maxRec}&f=geojson`;
+    fetch(url)
       .then(r => r.json())
       .then(gj => {
         const kml = geojsonToKML(gj, layerKey);
         downloadBlob(kml, `cwia_${layerKey}.kml`, 'application/vnd.google-earth.kml+xml');
       })
       .catch(() => alert('KML export failed.'));
-    return;
-  } else if(format === 'shapefile') {
-    // Open AGOL item page for shapefile download
-    alert(`To download as Shapefile:\n\n1. Open the CWIA Hub Site\n2. Find the layer: ${layerKey}\n3. Click Download → Shapefile\n\nOpening Hub Site...`);
-    window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
-    return;
-  }
 
-  // Direct download via fetch
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `cwia_${layerKey}.geojson`;
-      a.click();
-    })
-    .catch(() => window.open(url, '_blank'));
+  } else if(format === 'shapefile') {
+    alert('To download as Shapefile:\n\n1. Open the CWIA Hub Site\n2. Find the layer and click Download → Shapefile\n\nOpening Hub Site...');
+    window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
+  }
 };
 
 // ── AOI EXPORT ───────────────────────────────────────────────────────────────
@@ -986,6 +988,16 @@ function escapeXml(str) {
 }
 
 function geojsonToKML(gj, name) {
+  // LookAt Colorado center
+  const lookAt = `<LookAt>
+    <longitude>-105.5</longitude>
+    <latitude>39.0</latitude>
+    <altitude>0</altitude>
+    <range>800000</range>
+    <tilt>0</tilt>
+    <heading>0</heading>
+    <altitudeMode>relativeToGround</altitudeMode>
+  </LookAt>`;
   const placemarks = (gj.features || []).slice(0, 500).map(f => {
     const g = f.geometry || {};
     const p = f.properties || {};
@@ -1024,6 +1036,7 @@ function geojsonToKML(gj, name) {
 <Document>
   <name>CWIA - ${escapeXml(name)}</name>
   <description>Colorado Wildfire Intelligence Agency · Master GIS · Esri España 2025-2026</description>
+  ${lookAt}
   ${placemarks}
 </Document>
 </kml>`;
