@@ -262,13 +262,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 
 
 
-/* Download panel */
-#download-panel {
-  flex: 1; display: none; flex-direction: column;
-  background: var(--bg-deep); overflow-y: auto; padding: 20px;
-}
-#download-panel.active { display: flex; }
-
 /* Apps panel */
 #apps-panel {
   flex: 1; display: none; flex-direction: column;
@@ -348,7 +341,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
     <div class="nav-tab" onclick="switchTab('map')" id="tab-map"><span class="tab-icon">🗺️</span> Map Viewer</div>
     <div class="nav-tab" onclick="switchTab('apps')" id="tab-apps"><span class="tab-icon">🔗</span> Applications</div>
     <div class="nav-tab" onclick="switchTab('alerts')" id="tab-alerts"><span class="tab-icon">🚨</span> Alerts</div>
-    <div class="nav-tab" onclick="switchTab('download')" id="tab-download"><span class="tab-icon">⬇️</span> Download</div>
   </div>
 
   <div id="topbar-right">
@@ -374,11 +366,12 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
     <div class="panel-section">
       <div class="panel-title">Live Metrics</div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kv" style="color:#ff5252;" id="kpi-fires">--</div><div class="kl">Active Fires</div></div>
-        <div class="kpi-card"><div class="kv" style="color:#ff9800;" id="kpi-firms">--</div><div class="kl">FIRMS 24h</div></div>
+        <div class="kpi-card"><div class="kv" style="color:#ff5252;" id="kpi-fires">--</div><div class="kl">WFIGS Incidents</div></div>
+        <div class="kpi-card"><div class="kv" style="color:#ff9800;" id="kpi-firms">--</div><div class="kl">VIIRS Detections</div></div>
         <div class="kpi-card"><div class="kv" style="color:#40c4ff;" id="kpi-wind">--</div><div class="kl">Wind km/h</div></div>
         <div class="kpi-card"><div class="kv" style="color:#69f0ae;" id="kpi-temp">--</div><div class="kl">Temp °F</div></div>
       </div>
+      <div style="font-size:9px;color:var(--text-3);margin-top:4px;line-height:1.5;">WFIGS: formal incidents · VIIRS: satellite heat detections (includes non-wildfire sources)</div>
     </div>
 
     <div class="panel-section" style="flex:1;overflow-y:auto;" id="layer-section">
@@ -585,90 +578,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
     </div>
   </div>
 
-  <!-- DOWNLOAD PANEL -->
-  <div id="download-panel">
-    <div style="margin-bottom:20px;">
-      <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent-3);letter-spacing:2px;margin-bottom:4px;">DATA DOWNLOAD CENTER</div>
-      <div style="font-size:11px;color:var(--text-3);">Download CWIA layers using the applications below — select your preferred format</div>
-    </div>
-
-    <!-- Experience Builder -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <div style="font-size:24px;">📊</div>
-        <div>
-          <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent-1);">Wildfire Risk Index — Experience Builder</div>
-          <div style="font-size:11px;color:var(--text-3);">Select features on the map → Export → Choose format</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.7;">
-        ✅ <strong style="color:var(--text-1);">GeoJSON</strong> — Geographic data with geometry<br>
-        ✅ <strong style="color:var(--text-1);">CSV</strong> — Tabular data with coordinates<br>
-        ✅ <strong style="color:var(--text-1);">JSON</strong> — Full feature attributes<br>
-        ⚠️ Shapefile / FGDB / KML — requires organization admin permissions
-      </div>
-      <div style="font-size:11px;color:var(--text-3);margin-bottom:10px;font-style:italic;">
-        Available layers: Historic Fire Perimeters · Active Fire Detections · Weather Stations · County Boundaries · Red Flag Warnings · Critical Infrastructure · Predictive Buffers
-      </div>
-      <button onclick="window.open('https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8','_blank')" 
-        style="width:100%;padding:10px;background:var(--accent-1);border:none;border-radius:6px;color:#000;font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">
-        OPEN WILDFIRE RISK INDEX →
-      </button>
-    </div>
-
-    <!-- Hub Site -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <div style="font-size:24px;">🌐</div>
-        <div>
-          <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent-1);">CWIA Hub Site — Open Data Portal</div>
-          <div style="font-size:11px;color:var(--text-3);">Full download catalog · All formats · No login required</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.7;">
-        ✅ <strong style="color:var(--text-1);">Shapefile</strong> — Industry standard GIS format<br>
-        ✅ <strong style="color:var(--text-1);">File Geodatabase (FGDB)</strong> — ArcGIS native format<br>
-        ✅ <strong style="color:var(--text-1);">KML/KMZ</strong> — Google Earth compatible<br>
-        ✅ <strong style="color:var(--text-1);">GeoJSON · CSV · JSON</strong> — Open formats
-      </div>
-      <button onclick="window.open('https://cwia-colorado-mastergis.hub.arcgis.com','_blank')"
-        style="width:100%;padding:10px;background:var(--bg-deep);border:1px solid var(--accent-3);border-radius:6px;color:var(--accent-3);font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">
-        OPEN HUB SITE →
-      </button>
-    </div>
-
-    <!-- AOI Tool -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <div style="font-size:24px;">✏️</div>
-        <div>
-          <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent-1);">Custom Area Analysis (AOI)</div>
-          <div style="font-size:11px;color:var(--text-3);">Draw area on map → Get statistics → Export AOI</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.7;">
-        Draw a custom polygon in the <strong style="color:var(--text-1);">Map Viewer</strong> to analyze any area of Colorado and export statistics in GeoJSON format.
-      </div>
-      <button onclick="switchTab('map')"
-        style="width:100%;padding:10px;background:var(--bg-deep);border:1px solid var(--accent-1);border-radius:6px;color:var(--accent-1);font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">
-        GO TO MAP VIEWER →
-      </button>
-    </div>
-
-    <!-- Data Sources -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;">
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:10px;">OFFICIAL DATA SOURCES</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <a href="https://firms.modaps.eosdis.nasa.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ NASA FIRMS</a>
-        <a href="https://data-nifc.opendata.arcgis.com" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ NIFC Open Data</a>
-        <a href="https://landfire.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ LANDFIRE 2024</a>
-        <a href="https://nationalmap.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ USGS National Map</a>
-        <a href="https://www.weather.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ NOAA NWS</a>
-        <a href="https://csfs.colostate.edu" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ CSFS Colorado</a>
-      </div>
-    </div>
-  </div>
-
   <!-- RIGHT PANEL -->
   <div id="right-panel">
     <div class="rpanel-tabs">
@@ -772,7 +681,6 @@ window.switchTab = function(tab) {
   // Hide all panels
   document.getElementById('map-container').classList.remove('active');
   document.getElementById('embed-container').classList.remove('active');
-  document.getElementById('download-panel').classList.remove('active');
   document.getElementById('apps-panel').classList.remove('active');
   document.getElementById('alerts-panel').classList.remove('active');
   
@@ -790,10 +698,6 @@ window.switchTab = function(tab) {
     document.getElementById('map-container').classList.add('active');
     document.getElementById('layer-section').style.display = '';
     document.getElementById('tools-section').style.display = '';
-  } else if(tab === 'download') {
-    document.getElementById('download-panel').classList.add('active');
-    document.getElementById('layer-section').style.display = 'none';
-    document.getElementById('tools-section').style.display = 'none';
   } else if(tab === 'apps') {
     document.getElementById('apps-panel').classList.add('active');
     document.getElementById('layer-section').style.display = 'none';
