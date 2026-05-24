@@ -260,49 +260,14 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 .legend-box { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
 .legend-gradient { width: 100%; height: 12px; border-radius: 3px; margin-bottom: 4px; }
 
+
+
 /* Download panel */
 #download-panel {
   flex: 1; display: none; flex-direction: column;
   background: var(--bg-deep); overflow-y: auto; padding: 20px;
 }
 #download-panel.active { display: flex; }
-
-.dl-section { margin-bottom: 24px; }
-.dl-section-title {
-  font-family: var(--font-head); font-size: 14px; font-weight: 700;
-  color: var(--accent-1); letter-spacing: 2px; text-transform: uppercase;
-  margin-bottom: 12px; padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
-}
-.dl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.dl-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 14px; transition: all 0.2s;
-}
-.dl-card:hover { border-color: var(--accent-1); transform: translateY(-1px); }
-.dl-card-title { font-size: 13px; color: var(--text-1); font-weight: 500; margin-bottom: 6px; }
-.dl-card-desc { font-size: 10px; color: var(--text-3); margin-bottom: 10px; }
-.dl-formats { display: flex; flex-wrap: wrap; gap: 5px; }
-.dl-format-btn {
-  padding: 4px 8px; border-radius: 4px; cursor: pointer;
-  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
-  border: 1px solid var(--border); background: var(--bg-deep);
-  color: var(--text-2); transition: all 0.15s;
-}
-.dl-format-btn:hover { border-color: var(--accent-3); color: var(--accent-3); background: rgba(76,175,80,0.08); }
-
-/* AOI download section */
-.aoi-section {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px; margin-bottom: 20px;
-}
-.aoi-section-title {
-  font-family: var(--font-head); font-size: 13px; font-weight: 700;
-  color: var(--accent-1); letter-spacing: 1px; margin-bottom: 8px;
-}
-.aoi-step { font-size: 11px; color: var(--text-2); margin-bottom: 6px; display: flex; gap: 8px; }
-.aoi-step span { color: var(--accent-1); font-family: var(--font-mono); }
 
 /* Apps panel */
 #apps-panel {
@@ -552,6 +517,15 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
       </div>
       <div class="app-card-badge">HUB</div>
     </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:4px;">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:8px;">⬇️ DATA DOWNLOAD</div>
+      <div style="font-size:12px;color:var(--text-2);line-height:1.7;">
+        Download CWIA layers in GeoJSON, CSV, Shapefile, FGDB and KML:<br>
+        <a href="https://cwia-colorado-mastergis.hub.arcgis.com" target="_blank" style="color:var(--accent-1);">→ Hub Site — all formats</a><br>
+        <a href="https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8" target="_blank" style="color:var(--accent-1);">→ Wildfire Risk Index — select & export</a>
+      </div>
+    </div>
   </div>
 
   <!-- ALERTS PANEL -->
@@ -613,134 +587,84 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 
   <!-- DOWNLOAD PANEL -->
   <div id="download-panel">
-    <div style="margin-bottom:16px;">
+    <div style="margin-bottom:20px;">
       <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent-3);letter-spacing:2px;margin-bottom:4px;">DATA DOWNLOAD CENTER</div>
-      <div style="font-size:11px;color:var(--text-3);">Download CWIA layers in multiple formats · Select area for custom exports</div>
+      <div style="font-size:11px;color:var(--text-3);">Download CWIA layers using the applications below — select your preferred format</div>
     </div>
 
-    <!-- AOI Download -->
-    <div class="aoi-section">
-      <div class="aoi-section-title">🖊️ Custom Area Download (AOI)</div>
-      <div class="aoi-step"><span>1.</span> Switch to Map Viewer tab</div>
-      <div class="aoi-step"><span>2.</span> Click "Draw Area of Interest" in the left panel</div>
-      <div class="aoi-step"><span>3.</span> Draw your polygon on the map</div>
-      <div class="aoi-step"><span>4.</span> Return here and click "Export AOI"</div>
-      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('geojson')">GeoJSON</button>
-        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('csv')">CSV</button>
-        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('kml')">KML/KMZ</button>
-        <button class="dl-format-btn" style="padding:7px 14px;font-size:11px;" onclick="exportFormat('wkt')">WKT</button>
-      </div>
-      <div id="aoi-msg" style="margin-top:8px;font-size:10px;color:var(--text-3);">No AOI defined yet. Draw an area in Map Viewer first.</div>
-    </div>
-
-    <!-- Layers by group -->
-    <div class="dl-section">
-      <div class="dl-section-title">🔥 Fire & Risk Data</div>
-      <div class="dl-grid">
-        <div class="dl-card">
-          <div class="dl-card-title">Wildfire Risk Index</div>
-          <div class="dl-card-desc">5-variable composite · Colorado · 30m resolution</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('risk','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('risk','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('risk','kml')">KML</span>
-            <span class="dl-format-btn" onclick="dlLayer('risk','shapefile')">Shapefile</span>
-          </div>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-title">Historic Fire Perimeters</div>
-          <div class="dl-card-desc">690 perimeters · Colorado 2020-2022 · NIFC/MTBS</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('perimeters','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('perimeters','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('perimeters','kml')">KML</span>
-            <span class="dl-format-btn" onclick="dlLayer('perimeters','shapefile')">Shapefile</span>
-          </div>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-title">Active Fire Detections</div>
-          <div class="dl-card-desc">NASA FIRMS · VIIRS · Updated daily</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('firms','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('firms','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('firms','kml')">KML</span>
-          </div>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-title">Red Flag Warnings</div>
-          <div class="dl-card-desc">NOAA NWS · Real-time · Colorado</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('redflag','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('redflag','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('redflag','kml')">KML</span>
-          </div>
+    <!-- Experience Builder -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="font-size:24px;">📊</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent-1);">Wildfire Risk Index — Experience Builder</div>
+          <div style="font-size:11px;color:var(--text-3);">Select features on the map → Export → Choose format</div>
         </div>
       </div>
+      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.7;">
+        ✅ <strong style="color:var(--text-1);">GeoJSON</strong> — Geographic data with geometry<br>
+        ✅ <strong style="color:var(--text-1);">CSV</strong> — Tabular data with coordinates<br>
+        ✅ <strong style="color:var(--text-1);">JSON</strong> — Full feature attributes<br>
+        ⚠️ Shapefile / FGDB / KML — requires organization admin permissions
+      </div>
+      <div style="font-size:11px;color:var(--text-3);margin-bottom:10px;font-style:italic;">
+        Available layers: Historic Fire Perimeters · Active Fire Detections · Weather Stations · County Boundaries · Red Flag Warnings · Critical Infrastructure · Predictive Buffers
+      </div>
+      <button onclick="window.open('https://experience.arcgis.com/experience/821d45609b0b4e73b8b5cf859f44dfd8','_blank')" 
+        style="width:100%;padding:10px;background:var(--accent-1);border:none;border-radius:6px;color:#000;font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">
+        OPEN WILDFIRE RISK INDEX →
+      </button>
     </div>
 
-    <div class="dl-section">
-      <div class="dl-section-title">🏗️ Infrastructure & Boundaries</div>
-      <div class="dl-grid">
-        <div class="dl-card">
-          <div class="dl-card-title">Critical Infrastructure</div>
-          <div class="dl-card-desc">Hospitals · Schools · Fire stations · Routes · FEMA shelters</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('infra','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('infra','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('infra','kml')">KML</span>
-            <span class="dl-format-btn" onclick="dlLayer('infra','shapefile')">Shapefile</span>
-          </div>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-title">County Boundaries</div>
-          <div class="dl-card-desc">64 counties · Colorado · US Census TIGER</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('counties','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('counties','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('counties','kml')">KML</span>
-            <span class="dl-format-btn" onclick="dlLayer('counties','shapefile')">Shapefile</span>
-          </div>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-title">Weather Stations RAWS</div>
-          <div class="dl-card-desc">NOAA RAWS · 149 stations · Colorado</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('weather','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('weather','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('weather','kml')">KML</span>
-          </div>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-title">WUI — Urban Interface</div>
-          <div class="dl-card-desc">Wildland-Urban Interface · USFS/CSFS · Colorado</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="dlLayer('wui','geojson')">GeoJSON</span>
-            <span class="dl-format-btn" onclick="dlLayer('wui','csv')">CSV</span>
-            <span class="dl-format-btn" onclick="dlLayer('wui','kml')">KML</span>
-          </div>
+    <!-- Hub Site -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="font-size:24px;">🌐</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent-1);">CWIA Hub Site — Open Data Portal</div>
+          <div style="font-size:11px;color:var(--text-3);">Full download catalog · All formats · No login required</div>
         </div>
       </div>
+      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.7;">
+        ✅ <strong style="color:var(--text-1);">Shapefile</strong> — Industry standard GIS format<br>
+        ✅ <strong style="color:var(--text-1);">File Geodatabase (FGDB)</strong> — ArcGIS native format<br>
+        ✅ <strong style="color:var(--text-1);">KML/KMZ</strong> — Google Earth compatible<br>
+        ✅ <strong style="color:var(--text-1);">GeoJSON · CSV · JSON</strong> — Open formats
+      </div>
+      <button onclick="window.open('https://cwia-colorado-mastergis.hub.arcgis.com','_blank')"
+        style="width:100%;padding:10px;background:var(--bg-deep);border:1px solid var(--accent-3);border-radius:6px;color:var(--accent-3);font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">
+        OPEN HUB SITE →
+      </button>
     </div>
 
-    <div class="dl-section">
-      <div class="dl-section-title">📄 Reports & Documents</div>
-      <div class="dl-grid">
-        <div class="dl-card">
-          <div class="dl-card-title">CWIA System Report</div>
-          <div class="dl-card-desc">Full TFM technical report · Arturo Fernández Girón · Esri España 2025-2026</div>
-          <div class="dl-formats">
-            <span class="dl-format-btn" onclick="alert('PDF report will be available after June 2, 2026 final submission.')">PDF</span>
-          </div>
+    <!-- AOI Tool -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="font-size:24px;">✏️</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent-1);">Custom Area Analysis (AOI)</div>
+          <div style="font-size:11px;color:var(--text-3);">Draw area on map → Get statistics → Export AOI</div>
         </div>
-        <div class="dl-card">
-          <div class="dl-card-title">Open Data Portal</div>
-          <div class="dl-card-desc">All CWIA published services · ArcGIS Online catalog</div>
-          <div class="dl-formats">
-            <a href="https://cwia-colorado-mastergis.hub.arcgis.com" target="_blank" class="dl-format-btn" style="text-decoration:none;">Hub Site →</a>
-            <a href="https://data-nifc.opendata.arcgis.com" target="_blank" class="dl-format-btn" style="text-decoration:none;">NIFC →</a>
-          </div>
-        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.7;">
+        Draw a custom polygon in the <strong style="color:var(--text-1);">Map Viewer</strong> to analyze any area of Colorado and export statistics in GeoJSON format.
+      </div>
+      <button onclick="switchTab('map')"
+        style="width:100%;padding:10px;background:var(--bg-deep);border:1px solid var(--accent-1);border-radius:6px;color:var(--accent-1);font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">
+        GO TO MAP VIEWER →
+      </button>
+    </div>
+
+    <!-- Data Sources -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-bottom:10px;">OFFICIAL DATA SOURCES</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <a href="https://firms.modaps.eosdis.nasa.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ NASA FIRMS</a>
+        <a href="https://data-nifc.opendata.arcgis.com" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ NIFC Open Data</a>
+        <a href="https://landfire.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ LANDFIRE 2024</a>
+        <a href="https://nationalmap.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ USGS National Map</a>
+        <a href="https://www.weather.gov" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ NOAA NWS</a>
+        <a href="https://csfs.colostate.edu" target="_blank" style="color:var(--accent-1);font-size:11px;text-decoration:none;">→ CSFS Colorado</a>
       </div>
     </div>
   </div>
@@ -838,200 +762,6 @@ html, body { width: 100%; height: 100%; background: var(--bg-deep); color: var(-
 </div>
 
 <script>
-// ── DOWNLOAD — Direct ArcGIS Online item pages ───────────────────────────────
-// Format codes: 4 = KMZ, 1000 = CSV, shapefile = Shapefile, geojson = GeoJSON
-const LAYER_ITEMS = {
-  risk:       { id: "0f1550bd79e24e45b537a8a575d76a70", name: "Wildfire Risk Index",
-                fs: "https://tiles.arcgis.com/tiles/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_AnalisisRiesgo_Colorado/MapServer/0" },
-  perimeters: { id: "3195a4c7f6e44a3f9f2e5b8d1c0a7e32", name: "Historic Fire Perimeters",
-                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/Historic_Fire_Perimeters_Colorado/FeatureServer/0" },
-  firms:      { id: "e46a787a3c4d4b1f9e2a5c8d0f1b3e74", name: "Active Fire Detections",
-                fs: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0" },
-  redflag:    { id: "5a04d394b6c14e2f8a1d7c9e0b2f5a81", name: "Red Flag Warnings",
-                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/RedFlagWarning/FeatureServer/0" },
-  infra:      { id: "b639a9f6e4c14a2d8f1e5b9c0d3a7e52", name: "Critical Infrastructure",
-                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0" },
-  counties:   { id: "a011a84be5c14f3d9a2e7b0c1d4f8a63", name: "County Boundaries",
-                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Condados_Colorado/FeatureServer/0" },
-  weather:    { id: "a4f9dc8fe6b14c2a7d1f5e8b0c3d9a74", name: "Weather Stations RAWS",
-                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Meteorologia_NOAA/FeatureServer/0" },
-  wui:        { id: "b639a9f6e4c14a2d8f1e5b9c0d3a7e52", name: "Complementary Layers",
-                fs: "https://services6.arcgis.com/vQa0SVm7Y0deDYFA/arcgis/rest/services/CWIA_Capas_Complementarias/FeatureServer/0" },
-};
-
-// ── DOWNLOAD FUNCTION ────────────────────────────────────────────────────────
-window.dlLayer = function(layerKey, format) {
-  const layer = LAYER_ITEMS[layerKey];
-  if(!layer) { alert('Layer not available.'); return; }
-
-  const fs = layer.fs;
-  const base = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000`;
-
-  if(format === 'geojson') {
-    // Direct URL — ArcGIS returns GeoJSON natively, browser downloads it
-    const url = `${base}&f=geojson`;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cwia_${layerKey}.geojson`;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-  } else if(format === 'csv') {
-    // Direct URL — ArcGIS returns CSV natively
-    const url = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000&f=csv`;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cwia_${layerKey}.csv`;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-  } else if(format === 'kml') {
-    // ArcGIS native KMZ format — opens directly in Google Earth with geometry
-    const url = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000&f=kmz`;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cwia_${layerKey}.kmz`;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-  } else if(format === 'shapefile') {
-    // Open ArcGIS Online item page for shapefile download
-    alert('Para descargar como Shapefile:\n\n1. Abre el Hub Site de la CWIA\n2. Encuentra la capa y haz clic en Download → Shapefile\n\nAbriendo Hub Site...');
-    window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
-  }
-};
-
-// ── AOI EXPORT ───────────────────────────────────────────────────────────────
-window.exportFormat = function(format) {
-  if(!window._lastGeometry) {
-    document.getElementById('aoi-msg').textContent = '⚠️ No AOI defined. Draw an area in Map Viewer first.';
-    return;
-  }
-  const geom = window._lastGeometry;
-  const stats = window._lastStats || {};
-
-  if(format === 'geojson') {
-    const gj = {
-      type: "FeatureCollection",
-      features: [{
-        type: "Feature",
-        geometry: { type: "Polygon", coordinates: geom.rings },
-        properties: { ...stats, source: "CWIA Portal", crs: "WGS84", date: new Date().toISOString() }
-      }]
-    };
-    downloadBlob(JSON.stringify(gj, null, 2), 'cwia_aoi.geojson', 'application/json');
-  } else if(format === 'csv') {
-    const rows = ['field,value'];
-    rows.push(`area_km2,${stats.areaKm2 || 'N/A'}`);
-    rows.push(`active_fires,${stats.firmsRes || 0}`);
-    rows.push(`historic_perimeters,${stats.perimRes || 0}`);
-    rows.push(`source,CWIA Portal`);
-    rows.push(`date,${new Date().toISOString()}`);
-    downloadBlob(rows.join('\n'), 'cwia_aoi_stats.csv', 'text/csv');
-  } else if(format === 'kml') {
-    const coords = geom.rings[0].map(p => p.join(',')).join(' ');
-    const kml = `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>CWIA Area of Interest</name>
-    <Placemark>
-      <name>AOI - ${stats.areaKm2 || '?'} km²</name>
-      <description>Active fires: ${stats.firmsRes || 0} | Historic perimeters: ${stats.perimRes || 0}</description>
-      <Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>
-    </Placemark>
-  </Document>
-</kml>`;
-    downloadBlob(kml, 'cwia_aoi.kml', 'application/vnd.google-earth.kml+xml');
-  } else if(format === 'wkt') {
-    const coords = geom.rings[0].map(p => `${p[0]} ${p[1]}`).join(', ');
-    const wkt = `POLYGON ((${coords}))`;
-    downloadBlob(wkt, 'cwia_aoi.wkt', 'text/plain');
-  }
-
-  document.getElementById('aoi-msg').textContent = `✅ AOI exported as ${format.toUpperCase()}`;
-};
-
-function downloadBlob(content, filename, mime) {
-  const blob = new Blob([content], {type: mime});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-function escapeXml(str) {
-  if(str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
-}
-
-function geojsonToKML(gj, name) {
-  // LookAt Colorado center
-  const lookAt = `<LookAt>
-    <longitude>-105.5</longitude>
-    <latitude>39.0</latitude>
-    <altitude>0</altitude>
-    <range>800000</range>
-    <tilt>0</tilt>
-    <heading>0</heading>
-    <altitudeMode>relativeToGround</altitudeMode>
-  </LookAt>`;
-  const placemarks = (gj.features || []).slice(0, 500).map(f => {
-    const g = f.geometry || {};
-    const p = f.properties || {};
-    let geo = '';
-    if(g.type === 'Point') {
-      const lon = parseFloat(g.coordinates[0]).toFixed(6);
-      const lat = parseFloat(g.coordinates[1]).toFixed(6);
-      geo = `<Point><coordinates>${lon},${lat},0</coordinates></Point>`;
-    } else if(g.type === 'Polygon') {
-      const coords = (g.coordinates[0] || []).map(c =>
-        `${parseFloat(c[0]).toFixed(6)},${parseFloat(c[1]).toFixed(6)},0`
-      ).join(' ');
-      geo = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
-    } else if(g.type === 'MultiPolygon') {
-      const outer = ((g.coordinates[0] || [])[0] || []).map(c =>
-        `${parseFloat(c[0]).toFixed(6)},${parseFloat(c[1]).toFixed(6)},0`
-      ).join(' ');
-      geo = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${outer}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
-    } else if(g.type === 'LineString') {
-      const coords = (g.coordinates || []).map(c =>
-        `${parseFloat(c[0]).toFixed(6)},${parseFloat(c[1]).toFixed(6)},0`
-      ).join(' ');
-      geo = `<LineString><coordinates>${coords}</coordinates></LineString>`;
-    }
-    const featName = escapeXml(p.IncidentName || p.name || p.NAME || p.GACGName || name);
-    const desc = escapeXml(
-      Object.entries(p).slice(0,8)
-        .filter(([k,v]) => v !== null && v !== undefined)
-        .map(([k,v]) => `${k}: ${v}`).join(' | ')
-    );
-    return `<Placemark><name>${featName}</name><description><![CDATA[${desc}]]></description>${geo}</Placemark>`;
-  }).join('\n');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-<Document>
-  <name>CWIA - ${escapeXml(name)}</name>
-  <description>Colorado Wildfire Intelligence Agency · Master GIS · Esri España 2025-2026</description>
-  ${lookAt}
-  ${placemarks}
-</Document>
-</kml>`;
-}
-
 // ── TAB SWITCHING ─────────────────────────────────────────────────────────────
 window.currentTab = 'embed';
 
@@ -1042,9 +772,9 @@ window.switchTab = function(tab) {
   // Hide all panels
   document.getElementById('map-container').classList.remove('active');
   document.getElementById('embed-container').classList.remove('active');
+  document.getElementById('download-panel').classList.remove('active');
   document.getElementById('apps-panel').classList.remove('active');
   document.getElementById('alerts-panel').classList.remove('active');
-  document.getElementById('download-panel').classList.remove('active');
   
   // Show embed by default if no other panel selected
   if(!['map','apps','alerts','download'].includes(tab)) {
@@ -1060,6 +790,10 @@ window.switchTab = function(tab) {
     document.getElementById('map-container').classList.add('active');
     document.getElementById('layer-section').style.display = '';
     document.getElementById('tools-section').style.display = '';
+  } else if(tab === 'download') {
+    document.getElementById('download-panel').classList.add('active');
+    document.getElementById('layer-section').style.display = 'none';
+    document.getElementById('tools-section').style.display = 'none';
   } else if(tab === 'apps') {
     document.getElementById('apps-panel').classList.add('active');
     document.getElementById('layer-section').style.display = 'none';
@@ -1069,9 +803,7 @@ window.switchTab = function(tab) {
     document.getElementById('layer-section').style.display = 'none';
     document.getElementById('tools-section').style.display = 'none';
   } else if(tab === 'download') {
-    document.getElementById('download-panel').classList.add('active');
-    document.getElementById('layer-section').style.display = 'none';
-    document.getElementById('tools-section').style.display = 'none';
+
    }
 };
 
@@ -1193,7 +925,7 @@ window.clearTools = function() {
 };
 
 window.showAOIExport = function() {
-  switchTab('download');
+  alert('Use the Draw AOI tool and check results in the stats panel.');
 };
 
 async function analyzeAOI(geometry, geometryEngine, firmsLayer, perimLayer) {
@@ -1223,20 +955,28 @@ async function analyzeAOI(geometry, geometryEngine, firmsLayer, perimLayer) {
 // ── LIVE DATA ──────────────────────────────────────────────────────────────────
 async function loadLiveData() {
   try {
-    // Active fires CO
-    const r1 = await fetch("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=POOState%3D'US-CO'&returnCountOnly=true&f=json");
-    const d1 = await r1.json();
-    const fires = d1.count || 0;
+    // Active fires CO — WFIGS incidents
+    let fires = 0;
+    try {
+      const r1 = await fetch("https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=POOState%3D'US-CO'&returnCountOnly=true&f=json");
+      const d1 = await r1.json();
+      fires = d1.count || 0;
+    } catch(e) { fires = 0; }
     document.getElementById("kpi-fires").textContent = fires;
-    document.getElementById("alert-badge").className = fires > 5 ? "alert-badge alert" : "alert-badge normal";
-    document.getElementById("alert-badge").textContent = fires > 5 ? "🔴 ALERT" : "🟢 NORMAL";
+    document.getElementById("alert-badge").className = fires > 3 ? "alert-badge alert" : "alert-badge normal";
+    document.getElementById("alert-badge").textContent = fires > 3 ? "🔴 ALERT" : "🟢 NORMAL";
 
-    // FIRMS
-    const now = new Date();
-    const today = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
-    const r2 = await fetch(`https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=acq_date%3D'${today}'&geometry=-109.05%2C36.99%2C-102.04%2C41.00&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json`);
-    const d2 = await r2.json();
-    document.getElementById("kpi-firms").textContent = d2.count ?? "--";
+    // FIRMS 24h detections — use last 2 days window for reliability
+    let firmsCount = 0;
+    try {
+      const now = new Date();
+      const yesterday = new Date(now - 86400000*2);
+      const dateStr = `${yesterday.getUTCFullYear()}-${String(yesterday.getUTCMonth()+1).padStart(2,'0')}-${String(yesterday.getUTCDate()).padStart(2,'0')}`;
+      const r2 = await fetch(`https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0/query?where=acq_date>%3D'${dateStr}'&geometry=-109.05%2C36.99%2C-102.04%2C41.00&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json`);
+      const d2 = await r2.json();
+      firmsCount = d2.count || 0;
+    } catch(e) { firmsCount = 0; }
+    document.getElementById("kpi-firms").textContent = firmsCount > 0 ? firmsCount : "--";
 
     // Weather
     const r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.74&longitude=-104.98&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability&daily=temperature_2m_max,precipitation_probability_max,weathercode&timezone=America/Denver&forecast_days=5");
