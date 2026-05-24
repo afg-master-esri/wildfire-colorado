@@ -865,79 +865,45 @@ window.dlLayer = function(layerKey, format) {
   if(!layer) { alert('Layer not available.'); return; }
 
   const fs = layer.fs;
-  // Always output in WGS84 geographic, max 2000 features
   const base = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000`;
 
   if(format === 'geojson') {
+    // Direct URL — ArcGIS returns GeoJSON natively, browser downloads it
     const url = `${base}&f=geojson`;
-    fetch(url)
-      .then(r => { if(!r.ok) throw new Error('Network error'); return r.json(); })
-      .then(data => {
-        if(data.error) throw new Error(data.error.message);
-        downloadBlob(JSON.stringify(data, null, 2), `cwia_${layerKey}.geojson`, 'application/geo+json');
-      })
-      .catch(e => {
-        // Fallback: open directly
-        window.open(url, '_blank');
-      });
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cwia_${layerKey}.geojson`;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
   } else if(format === 'csv') {
-    const url = `${base}&f=json`;
-    fetch(url)
-      .then(r => r.json())
-      .then(data => {
-        if(!data.features || data.features.length === 0) {
-          alert('No features returned. The layer may be empty or restricted.');
-          return;
-        }
-        const fields = Object.keys(data.features[0].attributes || {});
-        const geomType = data.geometryType || '';
-        const isPoint = geomType.toLowerCase().includes('point');
-        const headers = isPoint ? ['LONGITUDE','LATITUDE',...fields] : fields;
-        const rows = [headers.join(',')];
-        data.features.forEach(f => {
-          const attrs = fields.map(k => {
-            const v = f.attributes[k];
-            if(v === null || v === undefined) return '';
-            return typeof v === 'string' ? `"${v.replace(/"/g,'""')}"` : v;
-          });
-          if(isPoint && f.geometry) {
-            rows.push([f.geometry.x ?? '', f.geometry.y ?? '', ...attrs].join(','));
-          } else {
-            rows.push(attrs.join(','));
-          }
-        });
-        downloadBlob(rows.join('\n'), `cwia_${layerKey}.csv`, 'text/csv;charset=utf-8');
-      })
-      .catch(() => alert('CSV export failed.'));
+    // Direct URL — ArcGIS returns CSV natively
+    const url = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000&f=csv`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cwia_${layerKey}.csv`;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
   } else if(format === 'kml') {
-    const url = `${base}&f=geojson`;
-    fetch(url)
-      .then(r => r.json())
-      .then(gj => {
-        if(!gj.features || gj.features.length === 0) {
-          alert('No features returned for KML export.');
-          return;
-        }
-        const kml = geojsonToKML(gj, layer.name);
-        downloadBlob(kml, `cwia_${layerKey}.kml`, 'application/vnd.google-earth.kml+xml');
-      })
-      .catch(() => alert('KML export failed.'));
+    // ArcGIS native KMZ format — opens directly in Google Earth with geometry
+    const url = `${fs}/query?where=1%3D1&outFields=*&outSR=4326&resultRecordCount=2000&f=kmz`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cwia_${layerKey}.kmz`;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
   } else if(format === 'shapefile') {
-    // Shapefile download via ArcGIS Online REST export
-    const exportUrl = `${fs}/0/exportFeatures?outSR=4326&f=zip&where=1%3D1`;
-    // Try direct export, fallback to Hub Site
-    fetch(fs + '/query?where=1%3D1&returnCountOnly=true&f=json')
-      .then(r => r.json())
-      .then(() => {
-        window.open(`${fs.replace('/FeatureServer/0','')}/FeatureServer/0/exportFeatures?f=zip&where=1%3D1&outSR=4326`, '_blank');
-      })
-      .catch(() => {
-        alert('Opening Hub Site for Shapefile download...');
-        window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
-      });
+    // Open ArcGIS Online item page for shapefile download
+    alert('Para descargar como Shapefile:\n\n1. Abre el Hub Site de la CWIA\n2. Encuentra la capa y haz clic en Download → Shapefile\n\nAbriendo Hub Site...');
+    window.open('https://cwia-colorado-mastergis.hub.arcgis.com', '_blank');
   }
 };
 
